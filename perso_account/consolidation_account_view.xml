@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		<record model="ir.ui.view" id="view_perso_account_consolidation_tree">
+            <field name="name">perso.account.consolidation.tree</field>
+            <field name="model">perso.account.consolidation</field>
+            <field name="arch" type="xml">
+                <tree string="Consolidation Account">
+                    <field name="name"/>
+                    <field name="amount" sum="Total" />
+                    <field name="consolidated_amount" sum="Total" />
+                </tree>
+            </field>
+        </record>
+        
+    	<record model="ir.ui.view" id="view_perso_account_consolidation_search">
+            <field name="name">perso.account.consolidation.search</field>
+            <field name="model">perso.account.consolidation</field>
+            <field name="arch" type="xml">
+               <search string="Account">
+                    <field name="name" />
+                    <field name="description" />
+                    <field name="account_ids" />
+                </search>
+            </field>
+        </record>
+        
+    	<record model="ir.ui.view" id="view_perso_account_consolidation_form">
+            <field name="name">perso.account.consolidation.form</field>
+            <field name="model">perso.account.consolidation</field>
+            <field name="arch" type="xml">
+               <form string="Consolidation Account" version="7.0">
+               		<sheet>
+               			<group>
+		                    <field name="name" />
+		                    <field name="amount" sum="Total" />
+                    		<field name="consolidated_amount" sum="Total" />
+               			</group>
+               			<notebook>
+               				<page string="Account">
+               					<field name="account_ids" />
+               				</page>
+               				<page string="Description">
+		               			<field name="description" />
+               				</page>
+               			</notebook>
+               		</sheet>
+                </form>
+            </field>
+        </record>
+    
+    <record model="ir.actions.act_window" id="account_consolidation_act_form">
+            <field name="name">Consolidation Account</field>
+            <field name="res_model">perso.account.consolidation</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+   </record>
+   
+	<menuitem
+            id="perso_account_consolidation"
+            parent="perso_account_root"
+            name="Consolidation Account"
+            action="account_consolidation_act_form"/>
+            
+	
+    </data>
+</openerp>
