@@ -51,12 +51,13 @@ class account(Model):
             return list(set(result))
         
     def _get_amount(self, cr, uid, ids, fields, arg, context=None):
-        print "context", context
         context = context or {}
         #Compute ids needed for computation
         compute_ids = list(ids)
         for account in self.browse(cr, uid, ids, context=context):
             compute_ids.extend(self._get_all_child(account, []))
+            
+        compute_ids = list(set(compute_ids))
             
         parent_per_child = {}
         for account in self.browse(cr, uid, compute_ids, context=context):
@@ -73,7 +74,6 @@ class account(Model):
         cash_flow_ids = cash_flow_obj.search(cr, uid, cash_flow_domain, context=context)
         for cash_flow in cash_flow_obj.browse(cr, uid, cash_flow_ids, context=context):
             amount[cash_flow.account_id.id] += cash_flow.amount
-        
         
         for account_id in compute_ids:
             account_amount = amount[account_id]
@@ -148,7 +148,9 @@ class cash_flow(Model):
         if context.get('current_month'):
             today = date.today()
             first_day_of_month = date(today.year ,today.month, 1).strftime("%Y-%m-%d")
-            first_day_of_next_month = date(today.year, today.month + 1, 1).strftime("%Y-%m-%d")
+            month = (today.month + 1) % 12
+            year = today.year + 1 if (today.month + 1) % 12 < today.month else today.year
+            first_day_of_next_month = date(year, month, 1).strftime("%Y-%m-%d")
             args.extend([("value_date", ">=", first_day_of_month), ("value_date", "<", first_day_of_next_month)])
             
         return super(cash_flow, self).search(cr, uid, args, offset=offset, limit=limit, order=order, context=context, count=count)
