@@ -8,10 +8,10 @@
                 <tree string="Account">
                     <field name="id" />
                     <field name="name"/>
-                    <field name="parent_id"/>
                     <field name="type"/>
                     <field name="amount" sum="Total" />
                     <field name="consolidated_amount" sum="Total" />
+                    <field name="parent_id"/>
                 </tree>
             </field>
         </record>
@@ -57,9 +57,6 @@
                             <field name="amount" />
                         </group>
                         <notebook>
-                            <page string="Description">
-                                <field name="description" />
-                            </page>
                             <page string="Child Account">
                                 <field name="child_ids" />
                             </page>
@@ -73,6 +70,9 @@
                                         <field name="transaction_date" />
                                     </tree>
                                 </field>
+                            </page>
+                            <page string="Description">
+                                <field name="description" />
                             </page>
                         </notebook>
                     </sheet>

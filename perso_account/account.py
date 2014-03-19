@@ -14,6 +14,10 @@ class bank_account(Model):
     _columns = {
         "name" : fields.char("Name", required=True),
     }
+    
+    _sql_constraints = [
+        ('name_uniq', 'unique (name)', 'Each name must be unique.')
+    ]
 
 class perso_account_period(Model):
     
@@ -23,6 +27,11 @@ class perso_account_period(Model):
         'name' : fields.char("Name"),
         'date_start' : fields.date("Date Start"),
         'date_end' : fields.date("Date End"),
+        'active' : fields.boolean("Active"),
+    }
+    
+    _defaults = {
+        'active' : True,
     }
     
 class user(Model):
@@ -132,6 +141,25 @@ class cash_flow(Model):
     
     _name = "perso.account.cash_flow"
     
+    def _get_period(self, cr, uid, ids, field, arg, context=None):
+        res = dict.fromkeys(ids, [])
+        period_obj = self.pool.get("perso.account.period")
+        all_period_ids = period_obj.search(cr, uid, [], context=context)
+        for period in period_obj.browse(cr, uid, all_period_ids, context=context):
+            cash_flow_ids = self.search(cr, uid, [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end), ('id', 'in', ids)], context=context)
+            for cash_id in cash_flow_ids:
+                res[cash_id] = period.id
+
+        return res
+
+    def _search_period(self, cr, uid, obj, name, args, context=None):
+        period_id = args[0][2]
+        period = self.pool.get("perso.account.period").browse(cr, uid, period_id, context=context)
+        cash_ids = self.search(cr, uid, [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)], context=context)
+        return [('id', 'in', cash_ids)]
+        #Bug openerp
+        #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
+    
     _columns = {
         "reference" : fields.char("Reference"),
         "name" : fields.text("Description"),
@@ -141,18 +169,12 @@ class cash_flow(Model):
         "transaction_date" : fields.date("Transaction Date"),
         "amount" : fields.float("Amount", required=True),
         "type" : fields.related("account_id", 'type', string="Type", type="char", store=True),
+        "period_id" : fields.function(_get_period, fnct_search=_search_period, type="many2one", relation="perso.account.period", string="Period"),
     }
     
-    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=None, count=False):
-        context = context or {}
-        if context.get('current_month'):
-            today = date.today()
-            first_day_of_month = date(today.year ,today.month, 1).strftime("%Y-%m-%d")
-            month = (today.month + 1) % 12
-            year = today.year + 1 if (today.month + 1) % 12 < today.month else today.year
-            first_day_of_next_month = date(year, month, 1).strftime("%Y-%m-%d")
-            args.extend([("value_date", ">=", first_day_of_month), ("value_date", "<", first_day_of_next_month)])
-            
-        return super(cash_flow, self).search(cr, uid, args, offset=offset, limit=limit, order=order, context=context, count=count)
+    _sql_constraints = [
+        ('ref_uniq', 'unique (reference)', 'Each reference must be unique.')
+    ]
     
-    
+    _order = "value_date desc"
+
