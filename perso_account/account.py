@@ -34,15 +34,7 @@ class perso_account_period(Model):
         'active' : True,
     }
     
-class user(Model):
-    _inherit = 'res.users'
-    
-    _columns = {
-        'context_period_id' : fields.many2one('perso.account.period', string="Current Period"),
-        'context_period_date_start' : fields.related('context_period_id', 'date_start', type='date', string="Period Date Start", store=True, readonly=True),
-        'context_period_date_end' : fields.related('context_period_id', 'date_end', type='date', string="Period Date End", store=True, readonly=True),
-    }
-    
+  
     
 """
     Account Model
@@ -61,6 +53,13 @@ class account(Model):
         
     def _get_amount(self, cr, uid, ids, fields, arg, context=None):
         context = context or {}
+        period_ids = False
+        bank_ids = False
+        if context.get("period_id"):
+            period_ids = self.pool.get("perso.account.period").search(cr, uid, [('name', '=', context["period_id"])], context=context)
+        
+        if context.get("bank_id"):
+            bank_ids = self.pool.get("perso.bank.account").search(cr, uid, [('name', '=', context["bank_id"])], context=context)
         #Compute ids needed for computation
         compute_ids = list(ids)
         for account in self.browse(cr, uid, ids, context=context):
@@ -76,8 +75,10 @@ class account(Model):
         amount = dict.fromkeys(compute_ids, 0.0)
         consolidated_amount = dict.fromkeys(compute_ids, 0.0)
         cash_flow_domain = [('account_id', 'in', compute_ids)]
-        if context.get('period_date_start') and context.get('period_date_end'):
-            cash_flow_domain.extend([("value_date", ">=", context['period_date_start']), ("value_date", "<=", context['period_date_end'])])
+        if period_ids:
+            cash_flow_domain.append(("period_id", "=", period_ids[0]))
+        if bank_ids:
+            cash_flow_domain.append(("bank_id", "=", bank_ids[0]))
         #Compute direct expense
         cash_flow_obj = self.pool.get('perso.account.cash_flow')
         cash_flow_ids = cash_flow_obj.search(cr, uid, cash_flow_domain, context=context)
@@ -113,6 +114,8 @@ class account(Model):
         "amount" : fields.function(_get_amount, type="float", string="Amount", readonly=True, multi=True),
         "consolidated_amount" : fields.function(_get_amount, type="float", string="Amount Consolidated", readonly=True, multi=True),
         "id" : fields.integer("id"),
+        "period_id" : fields.dummy(type="many2one", relation="perso.account.period", string="Period"),
+        "bank_id" : fields.dummy(type="many2one", relation="perso.bank.account", string="Bank Account"),
     }
 
 class consolidation_account(Model):

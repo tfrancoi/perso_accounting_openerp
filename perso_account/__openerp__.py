@@ -35,6 +35,7 @@
         
         'wizard/import_fortis.xml',
         'data/bank_account.xml',
+        'wizard/load_chart_of_account_view.xml',
     ],
     'installable': True,
     'application': True,

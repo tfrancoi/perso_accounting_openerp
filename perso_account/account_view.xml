@@ -40,6 +40,8 @@
                     <field name="parent_id" />
                     <field name="type" />
                     <field name="description" />
+                    <field name="period_id" context="{'period_id' : self}"/>
+                    <field name="bank_id" context="{'bank_id' : self}"/>
                 </search>
             </field>
         </record>
@@ -88,14 +90,7 @@
             <field name="view_id" ref="view_perso_account_tree" />
    </record>
    
-   <record model="ir.actions.act_window" id="account_act_tree">
-            <field name="name">Chart of Account</field>
-            <field name="res_model">perso.account</field>
-            <field name="view_type">tree</field>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="view_account_tree_tree" />
-   </record>
-    
+  
     
     <menuitem
             id="perso_account_top"
@@ -113,11 +108,7 @@
             name="Account"
             action="account_act_form"/>
             
-    <menuitem
-            id="perso_account_account_tree"
-            parent="perso_account_root"
-            name="Chart of Account"
-            action="account_act_tree"/>
+    
     
     
     </data>
