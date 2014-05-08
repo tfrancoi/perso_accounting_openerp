@@ -32,10 +32,10 @@
         'cash_flow_view.xml',
         'consolidation_account_view.xml',
         'period_view.xml',
-        
         'wizard/import_fortis.xml',
-        'data/bank_account.xml',
         'wizard/load_chart_of_account_view.xml',
+        'wizard/distribution.xml',
+        'data/bank_account.xml',
     ],
     'installable': True,
     'application': True,

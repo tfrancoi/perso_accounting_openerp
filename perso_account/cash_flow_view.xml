@@ -31,7 +31,8 @@
                     <field name="transaction_date" />
                      <field name="type"  />
                      <field name="reference" readonly="0" />
-                    <field name="period_id" />
+                    <field name="period_id" /> 
+                    <field name="distributed" readonly="0" />
                 </form>
             </field>
         </record>

@@ -4,7 +4,7 @@
 
     @author: Thibault Francois
 '''
-from openerp.osv.orm import Model  
+from openerp.osv.orm import Model, TransientModel
 from osv import fields,osv
 from datetime import timedelta
 from datetime import date
@@ -14,7 +14,7 @@ from StringIO import StringIO
 import datetime
 
 
-class import_fortis(Model):
+class import_fortis(TransientModel):
     
     _name = "perso.account.import_fortis"
     

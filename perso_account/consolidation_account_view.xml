@@ -20,6 +20,8 @@
                <search string="Account">
                     <field name="name" />
                     <field name="description" />
+                    <field name="period_id" context="{'period_id' : self}" />
+                    <field name="bank_id" context="{'bank_id' : self}" />
                     <field name="account_ids" />
                 </search>
             </field>
@@ -38,7 +40,7 @@
                			</group>
                			<notebook>
                				<page string="Account">
-               					<field name="account_ids" />
+               					<field name="account_ids" context="{'period_id' : context.get('period_id'), 'bank_id': context.get('bank_id')}" />
                				</page>
                				<page string="Description">
 		               			<field name="description" />

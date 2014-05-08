@@ -4,17 +4,11 @@
 
     @author: Thibault Francois
 '''
-from openerp.osv.orm import Model  
+from openerp.osv.orm import TransientModel  
 from osv import fields,osv
-from datetime import timedelta
-from datetime import date
-from base64 import b64decode
-import csv
-from StringIO import StringIO
-import datetime
 
 
-class load_chart_of_account(Model):
+class load_chart_of_account(TransientModel):
     
     _name = "perso.account.load_chart_of_account"
     

@@ -138,6 +138,8 @@ class consolidation_account(Model):
         'account_ids' : fields.many2many("perso.account", string="Accounts"),
         "amount" : fields.function(_get_amount, type="float", string="Amount", readonly=True, multi=True),
         "consolidated_amount" : fields.function(_get_amount, type="float", string="Amount Consolidated", readonly=True, multi=True),
+        "period_id" : fields.dummy(type="many2one", relation="perso.account.period", string="Period"),
+        "bank_id" : fields.dummy(type="many2one", relation="perso.bank.account", string="Bank Account"),
     }
 
 class cash_flow(Model):
@@ -173,6 +175,7 @@ class cash_flow(Model):
         "amount" : fields.float("Amount", required=True),
         "type" : fields.related("account_id", 'type', string="Type", type="char", store=True),
         "period_id" : fields.function(_get_period, fnct_search=_search_period, type="many2one", relation="perso.account.period", string="Period"),
+        "distributed" : fields.boolean("Has been distributed"),
     }
     
     _sql_constraints = [
