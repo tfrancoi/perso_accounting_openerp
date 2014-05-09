@@ -24,10 +24,13 @@ class load_chart_of_account(TransientModel):
         if wizard.period_id:
             context['period_id'] = wizard.period_id.name
             
+        view_id = self.pool.get('ir.model.data').get_object_reference(cr, uid, 'perso_account', 'view_account_tree_tree')[1]
+            
         return {
             'name': 'Chart of account',
             'view_type': 'tree',
             'view_mode': 'tree',
+            'view_id' : view_id,
             'res_model': 'perso.account',
             'type': 'ir.actions.act_window',
             'context': context
