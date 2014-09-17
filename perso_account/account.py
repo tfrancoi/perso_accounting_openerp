@@ -68,12 +68,14 @@ class account(Model):
         compute_ids = list(set(compute_ids))
             
         parent_per_child = {}
+        budget_per_account = {}
         for account in self.browse(cr, uid, compute_ids, context=context):
             parent_per_child[account.id] = account.parent_id.id
-            
+            budget_per_account[account.id] = account.budget
         #Init Value
         amount = dict.fromkeys(compute_ids, 0.0)
         consolidated_amount = dict.fromkeys(compute_ids, 0.0)
+        consolidated_budget = dict.fromkeys(compute_ids, 0.0)
         cash_flow_domain = [('account_id', 'in', compute_ids)]
         if period_ids:
             cash_flow_domain.append(("period_id", "=", period_ids[0]))
@@ -87,11 +89,14 @@ class account(Model):
         
         for account_id in compute_ids:
             account_amount = amount[account_id]
+            budget_amount = budget_per_account[account_id]
             consolidated_amount[account_id] += account_amount
+            consolidated_budget[account_id] += budget_amount
             while parent_per_child.get(account_id, False):
                 parent_id = parent_per_child[account_id]
                 if parent_id in compute_ids:
                     consolidated_amount[parent_id] += account_amount
+                    consolidated_budget[parent_id] += budget_amount
                 account_id = parent_id
             
         #Rearrange result    
@@ -100,6 +105,7 @@ class account(Model):
             res[account_id] = {
                 'amount' : amount[account_id], 
                 'consolidated_amount' : consolidated_amount[account_id],
+                'consolidated_budget' : consolidated_budget[account_id],
             }
         return res
         
@@ -116,6 +122,8 @@ class account(Model):
         "id" : fields.integer("id"),
         "period_id" : fields.dummy(type="many2one", relation="perso.account.period", string="Period"),
         "bank_id" : fields.dummy(type="many2one", relation="perso.bank.account", string="Bank Account"),
+        "budget" : fields.float("Account budget"),
+        "consolidated_budget" : fields.function(_get_amount, type="float", string="Consolidated Budget", readonly=True, multi=True),
     }
 
 class consolidation_account(Model):

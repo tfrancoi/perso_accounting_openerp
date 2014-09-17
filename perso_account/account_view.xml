@@ -5,13 +5,15 @@
             <field name="name">perso.account.tree</field>
             <field name="model">perso.account</field>
             <field name="arch" type="xml">
-                <tree string="Account">
+                <tree string="Account" 
+                      colors="black:consolidated_budget == 0;red:consolidated_amount &lt; consolidated_budget;green:consolidated_amount &gt; consolidated_budget;">
                     <field name="id" />
                     <field name="name"/>
                     <field name="type"/>
                     <field name="amount" sum="Total" />
                     <field name="consolidated_amount" sum="Total" />
                     <field name="parent_id"/>
+                    <field name="consolidated_budget" />
                 </tree>
             </field>
         </record>
@@ -27,6 +29,7 @@
                     <field name="type"/>
                     <field name="amount" sum="Total" />
                     <field name="consolidated_amount" sum="Total" />
+                    <field name="consolidated_budget" sum="Total Budget"/>
                 </tree>
             </field>
         </record>
@@ -57,6 +60,8 @@
                             <field name="type" />
                             <field name="parent_id" />
                             <field name="amount" />
+                            <field name="budget" />
+                            <field name="consolidated_budget" />
                         </group>
                         <notebook>
                             <page string="Child Account">
@@ -81,6 +86,8 @@
                 </form>
             </field>
         </record>
+        
+		
     
     <record model="ir.actions.act_window" id="account_act_form">
             <field name="name">Account</field>

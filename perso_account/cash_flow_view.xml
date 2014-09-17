@@ -52,13 +52,24 @@
             </field>
         </record>
         
+        <record model="ir.ui.view" id="view_perso_account_cash_flow_graph">
+   			<field name="name">perso.account.cash_flow.graph</field>
+   			<field name="model">perso.account.cash_flow</field>
+   			<field name="type">graph</field>
+   			<field name="arch" type="xml">
+         		<graph string="Account Graph" type="pie">
+              		<field name="account_id" group="True"/>
+              		<field name="amount" operator="+"/>
+        		</graph>
+    		</field>
+		</record>
         
     
         <record model="ir.actions.act_window" id="cash_flow_act_form">
                 <field name="name">Cash Flow</field>
                 <field name="res_model">perso.account.cash_flow</field>
                 <field name="view_type">form</field>
-                <field name="view_mode">tree,form</field>
+                <field name="view_mode">tree,form,graph</field>
        </record>
     
     
