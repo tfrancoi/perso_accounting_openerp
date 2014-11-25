@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from openerp.osv.orm import Model  
-from osv import fields,osv
+from openerp.osv import fields,osv
 
 class product_reference(Model):
     _name = "perso.product.reference"

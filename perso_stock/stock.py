@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 from openerp.osv.orm import Model  
-from osv import fields,osv
+from openerp.osv import fields,osv
 
-class stock_move(Model):
+from openerp import models, fields
+
+
+class stock_move(models.Model):
     _name = 'perso.stock.move'
-    
-    _columns = {
-        "product_id" : fields.many2one("perso.product", "Product", select=True),
-        "type" : fields.selection([('in', 'Incoming'), ('out', 'Outgoing')], string="Type of move"),
-        "quantity" : fields.float("Quantity"),
-        "create_date" : fields.datetime("Create Date", readonly=True),
-        "reference" : fields.char("Reference"),
-        "unit_of_measure" : fields.related('product_id', "unit_of_measure", 
-                                           string="Unit of Measure", type="char", readonly=True),
-    }
-    
     _order = "create_date desc"
+    
+    product_id      = fields.Many2one("perso.product", string="Product", index=True)
+    type            = fields.Selection([('in', 'Incoming'), ('out', 'Outgoing')], string="Type of move") 
+    quantity        = fields.Float("Quantity")
+    reference       = fields.Char("Reference")
+    unit_of_measure = fields.Char(string="Unit of Measure", related="product_id.unit_of_measure", readonly=True)
+    
     
     
 class stock_service(Model):

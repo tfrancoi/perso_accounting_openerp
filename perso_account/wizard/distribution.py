@@ -5,7 +5,7 @@
     @author: Thibault Francois
 '''
 from openerp.osv.orm import TransientModel  
-from osv import fields,osv
+from openerp.osv import fields,osv
 
 class distribution(TransientModel):
     

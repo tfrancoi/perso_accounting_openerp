@@ -1,39 +1,32 @@
 # -*- coding: utf-8 -*-
 from openerp.osv.orm import Model  
-from osv import fields,osv
+from openerp.osv import fields,osv
 from datetime import timedelta
 from datetime import date
+
+from openerp import models, fields, api
 
 """
     Configuration Model
 """
-class bank_account(Model):
+class bank_account(models.Model):
     
     _name = "perso.bank.account"
     
-    _columns = {
-        "name" : fields.char("Name", required=True),
-    }
+    name = fields.Char("Name", required=True)
     
     _sql_constraints = [
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
     ]
 
-class perso_account_period(Model):
+class perso_account_period(models.Model):
     
     _name = 'perso.account.period'
     
-    _columns = {
-        'name' : fields.char("Name"),
-        'date_start' : fields.date("Date Start"),
-        'date_end' : fields.date("Date End"),
-        'active' : fields.boolean("Active"),
-    }
-    
-    _defaults = {
-        'active' : True,
-    }
-    
+    name = fields.Char("Name")
+    date_start = fields.Date("Date Start")
+    date_end = fields.Date("Date End")
+    active = fields.Boolean("Active", default=True)
   
     
 """
@@ -42,6 +35,26 @@ class perso_account_period(Model):
 class account(Model):
 
     _name = "perso.account"
+    
+    name                = fields.Char("Name", required=True)
+    parent_id           = fields.Many2one("perso.account", string="Parent Account")
+    child_ids           = fields.One2many("perso.account", "parent_id", string="Children account", readonly=True)
+    cash_flow_ids       = fields.One2many('perso.account.cash_flow', 'account_id', string="Cash Flow")
+    type                = fields.Selection([("revenue", "Revenue"), 
+                                            ("expense", "Expense"), 
+                                            ('saving', 'Saving'), 
+                                            ('regulation', 'Regulation'),
+                                            ("root", "Root"), 
+                                            ], string="Type", required=True)
+    description         = fields.Text("Description")
+    amount              = fields.Float(compute="_get_amount", string="Amount", readonly=True)
+    consolidated_amount = fields.Float(compute="_get_amount", string="Amount Consolidated", readonly=True)
+    period_id           = fields.Many2one("perso.account.period", compute="_get_dummy", string="Period")
+    bank_id             = fields.Many2one("perso.bank.account", compute="_get_dummy", string="Bank Account")
+    budget              = fields.Float("Account budget")
+    consolidated_budget = fields.Float(compute="_get_amount", string="Consolidated Budget", readonly=True)
+    
+    @api.multi
     def _get_all_child(self, account, result):
         if not account.child_ids:
             return list(set(result))
@@ -51,25 +64,26 @@ class account(Model):
                 result.append(child.id)
             return list(set(result))
         
-    def _get_amount(self, cr, uid, ids, fields, arg, context=None):
-        context = context or {}
+    @api.multi
+    def _get_amount(self):
+        context = self.env.context
         period_ids = False
         bank_ids = False
         if context.get("period_id"):
-            period_ids = self.pool.get("perso.account.period").search(cr, uid, [('name', '=', context["period_id"])], context=context)
+            period_ids = self.env["perso.account.period"].search([('name', '=', context["period_id"])])
         
         if context.get("bank_id"):
-            bank_ids = self.pool.get("perso.bank.account").search(cr, uid, [('name', '=', context["bank_id"])], context=context)
+            bank_ids = self.env["perso.bank.account"].search([('name', '=', context["bank_id"])])
         #Compute ids needed for computation
-        compute_ids = list(ids)
-        for account in self.browse(cr, uid, ids, context=context):
+        compute_ids = list(self.ids)
+        for account in self:
             compute_ids.extend(self._get_all_child(account, []))
             
         compute_ids = list(set(compute_ids))
             
         parent_per_child = {}
         budget_per_account = {}
-        for account in self.browse(cr, uid, compute_ids, context=context):
+        for account in self.browse(compute_ids):
             parent_per_child[account.id] = account.parent_id.id
             budget_per_account[account.id] = account.budget
         #Init Value
@@ -82,9 +96,8 @@ class account(Model):
         if bank_ids:
             cash_flow_domain.append(("bank_id", "=", bank_ids[0]))
         #Compute direct expense
-        cash_flow_obj = self.pool.get('perso.account.cash_flow')
-        cash_flow_ids = cash_flow_obj.search(cr, uid, cash_flow_domain, context=context)
-        for cash_flow in cash_flow_obj.browse(cr, uid, cash_flow_ids, context=context):
+        cash_flow_obj = self.env['perso.account.cash_flow']
+        for cash_flow in cash_flow_obj.search(cash_flow_domain):
             amount[cash_flow.account_id.id] += cash_flow.amount
         
         for account_id in compute_ids:
@@ -100,95 +113,78 @@ class account(Model):
                 account_id = parent_id
             
         #Rearrange result    
-        res = {}
-        for account_id in ids:
-            res[account_id] = {
-                'amount' : amount[account_id], 
-                'consolidated_amount' : consolidated_amount[account_id],
-                'consolidated_budget' : consolidated_budget[account_id],
-            }
-        return res
+        for account in self:
+            account.amount = amount[account.id]
+            account.consolidated_amount = consolidated_amount[account.id]
+            account.consolidated_budget = consolidated_budget[account.id]
+            
         
-
-    _columns = {
-        "name" : fields.char("Name", required=True),
-        "parent_id" : fields.many2one("perso.account", string="Parent Account"),
-        "child_ids" : fields.one2many("perso.account", "parent_id", string="Children account", readonly=True),
-        "cash_flow_ids" : fields.one2many('perso.account.cash_flow', 'account_id', string="Cash Flow"),
-        "type" : fields.selection([("revenue", "Revenue"), ("expense", "Expense"), ("root", "Root")], string="Type", required=True),
-        "description" : fields.text("Description"),
-        "amount" : fields.function(_get_amount, type="float", string="Amount", readonly=True, multi=True),
-        "consolidated_amount" : fields.function(_get_amount, type="float", string="Amount Consolidated", readonly=True, multi=True),
-        "id" : fields.integer("id"),
-        "period_id" : fields.dummy(type="many2one", relation="perso.account.period", string="Period"),
-        "bank_id" : fields.dummy(type="many2one", relation="perso.bank.account", string="Bank Account"),
-        "budget" : fields.float("Account budget"),
-        "consolidated_budget" : fields.function(_get_amount, type="float", string="Consolidated Budget", readonly=True, multi=True),
-    }
+   
+    
+    @api.one
+    def _get_dummy(self):
+        self.period_id = False
+        self.bank_id = False
 
 class consolidation_account(Model):
     
     _name = "perso.account.consolidation"
     
-    def _get_amount(self, cr, uid, ids, fields, args, context=None):
-        res = dict.fromkeys(ids, {'amount' : 0.0, 'consolidated_amount' : 0.0})
-        for conso_account in self.browse(cr, uid, ids, context=context):
-            accounts = conso_account.account_ids
-            res[conso_account.id] = {
-                'amount' : sum([a.amount for a in accounts]),
-                'consolidated_amount' : sum([a.consolidated_amount for a in accounts])
-            }
-        return res
+    name                = fields.Char("Name")
+    description         = fields.Text("Description")
+    account_ids         = fields.Many2many("perso.account", string="Accounts")
+    amount              = fields.Float(compute="_get_amount", string="Amount", readonly=True)
+    consolidated_amount = fields.Float(compute="_get_amount", string="Amount Consolidated", readonly=True)
+    period_id           = fields.Many2one("perso.account.period", string="Period", compute="_get_dummy")
+    bank_id             = fields.Many2one("perso.bank.account", string="Bank Account", compute="_get_dummy")
     
-    _columns = {
-        'name' : fields.char("Name"),
-        'description' : fields.text("Description"),
-        'account_ids' : fields.many2many("perso.account", string="Accounts"),
-        "amount" : fields.function(_get_amount, type="float", string="Amount", readonly=True, multi=True),
-        "consolidated_amount" : fields.function(_get_amount, type="float", string="Amount Consolidated", readonly=True, multi=True),
-        "period_id" : fields.dummy(type="many2one", relation="perso.account.period", string="Period"),
-        "bank_id" : fields.dummy(type="many2one", relation="perso.bank.account", string="Bank Account"),
-    }
+    @api.one
+    def _get_amount(self):
+        accounts = self.account_ids
+        self.amount =  sum([a.amount for a in accounts])
+        self.consolidated_amount = sum([a.consolidated_amount for a in accounts])
+
+    @api.one
+    def _get_dummy(self):
+        self.period_id = False
+        self.bank_id = False
+    
 
 class cash_flow(Model):
     
     _name = "perso.account.cash_flow"
-    
-    def _get_period(self, cr, uid, ids, field, arg, context=None):
-        res = dict.fromkeys(ids, [])
-        period_obj = self.pool.get("perso.account.period")
-        all_period_ids = period_obj.search(cr, uid, [], context=context)
-        for period in period_obj.browse(cr, uid, all_period_ids, context=context):
-            cash_flow_ids = self.search(cr, uid, [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end), ('id', 'in', ids)], context=context)
-            for cash_id in cash_flow_ids:
-                res[cash_id] = period.id
 
-        return res
-
-    def _search_period(self, cr, uid, obj, name, args, context=None):
-        period_id = args[0][2]
-        period = self.pool.get("perso.account.period").browse(cr, uid, period_id, context=context)
-        cash_ids = self.search(cr, uid, [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)], context=context)
-        return [('id', 'in', cash_ids)]
-        #Bug openerp
-        #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
-    
-    _columns = {
-        "reference" : fields.char("Reference"),
-        "name" : fields.text("Description"),
-        "account_id" : fields.many2one("perso.account", string="Account"),
-        "bank_id" : fields.many2one("perso.bank.account", string="Bank Account", required=True),    
-        "value_date" : fields.date("Value Date", required=True),
-        "transaction_date" : fields.date("Transaction Date"),
-        "amount" : fields.float("Amount", required=True),
-        "type" : fields.related("account_id", 'type', string="Type", type="char", store=True),
-        "period_id" : fields.function(_get_period, fnct_search=_search_period, type="many2one", relation="perso.account.period", string="Period"),
-        "distributed" : fields.boolean("Has been distributed"),
-    }
+    reference = fields.Char("Reference")
+    name = fields.Text("Description")
+    account_id = fields.Many2one("perso.account", string="Account")
+    bank_id = fields.Many2one("perso.bank.account", string="Bank Account", required=True)  
+    value_date = fields.Date("Value Date", required=True)
+    transaction_date = fields.Date("Transaction Date")
+    amount = fields.Float("Amount", required=True)
+    type = fields.Selection(related="account_id.type", string="Type", store=True, readonly=True)
+    period_id = fields.Many2one("perso.account.period", compute="_get_period", search="_search_period", string="Period")
+    distributed = fields.Boolean("Has been distributed", readonly=True)
     
     _sql_constraints = [
         ('ref_uniq', 'unique (reference)', 'Each reference must be unique.')
     ]
     
     _order = "value_date desc"
+    
+    @api.multi
+    @api.depends('value_date')
+    def _get_period(self):
+        period_obj = self.env["perso.account.period"]
+        for period in period_obj.search([]):
+            cash_flow = self.search([("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end), ('id', 'in', self.ids)])
+            for cash in cash_flow:
+                cash.period_id = period
+
+    def _search_period(self, operator, period_id):
+        period = self.env["perso.account.period"].browse(period_id)
+        cash_ids = self.search([("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)])
+        return [('id', 'in', cash_ids.ids)]
+        #Bug openerp
+        #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
+    
 

@@ -5,7 +5,7 @@
     @author: Thibault Francois
 '''
 from openerp.osv.orm import Model, TransientModel
-from osv import fields,osv
+from openerp.osv import fields,osv
 from datetime import timedelta
 from datetime import date
 from base64 import b64decode

@@ -32,6 +32,7 @@
         'cash_flow_view.xml',
         'consolidation_account_view.xml',
         'period_view.xml',
+        'bank_account.xml',
         'wizard/import_fortis.xml',
         'wizard/load_chart_of_account_view.xml',
         'wizard/distribution.xml',

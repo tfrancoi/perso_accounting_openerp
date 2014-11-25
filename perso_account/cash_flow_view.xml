@@ -23,16 +23,22 @@
             <field name="model">perso.account.cash_flow</field>
             <field name="arch" type="xml">
                 <form string="Cash Flow">
-                    <field name="name" />
-                    <field name="account_id"/>
-                    <field name="bank_id" readonly="0" invisible="0"/>
-                    <field name="amount" sum="Total" readonly="0" />
-                    <field name="value_date"  />
-                    <field name="transaction_date" />
-                     <field name="type"  />
-                     <field name="reference" readonly="0" />
-                    <field name="period_id" /> 
-                    <field name="distributed" readonly="0" />
+                	<group>
+	                	<group>
+		                    <field name="name" />
+	    	                <field name="account_id"/>
+	        	            <field name="bank_id" />
+	            	        <field name="amount" sum="Total" />
+		                    <field name="type"  />
+	            	    </group>
+	            	    <group>
+	    	                <field name="reference" />
+	                	    <field name="value_date"  />
+	                    	<field name="transaction_date" />
+	        	            <field name="period_id" /> 
+	            	        <field name="distributed" />
+	                	</group>
+                	</group>
                 </form>
             </field>
         </record>
