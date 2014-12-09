@@ -5,7 +5,6 @@ Created on 25 nov. 2014
 '''
 from openerp import models, fields, api
 import openerplib
-from mercurial.transaction import active
 from openerp.exceptions import Warning
 
 
