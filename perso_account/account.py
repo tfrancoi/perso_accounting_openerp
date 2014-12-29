@@ -92,9 +92,9 @@ class account(Model):
         consolidated_budget = dict.fromkeys(compute_ids, 0.0)
         cash_flow_domain = [('account_id', 'in', compute_ids)]
         if period_ids:
-            cash_flow_domain.append(("period_id", "=", period_ids[0]))
+            cash_flow_domain.append(("period_id", "=", period_ids[0].id))
         if bank_ids:
-            cash_flow_domain.append(("bank_id", "=", bank_ids[0]))
+            cash_flow_domain.append(("bank_id", "=", bank_ids[0].id))
         #Compute direct expense
         cash_flow_obj = self.env['perso.account.cash_flow']
         for cash_flow in cash_flow_obj.search(cash_flow_domain):
