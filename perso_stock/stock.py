@@ -2,7 +2,7 @@
 from openerp.osv.orm import Model  
 from openerp.osv import fields,osv
 
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class stock_move(models.Model):
@@ -20,45 +20,41 @@ class stock_move(models.Model):
 class stock_service(Model):
     _name = 'perso.stock.service'
     
-    def find_product(self, cr, uid, reference):
-        ref_obj = self.pool['perso.product.reference']
-        ref_ids = ref_obj.search(cr, uid, [('name', '=', reference)]) 
-        if not ref_ids:
-            return False
+    @api.model
+    def find_product(self, reference):
+        refs = self.env['perso.product.reference'].search([('name', '=', reference)]) 
         res = []
-        for ref in ref_obj.browse(cr, uid, ref_ids):
+        for ref in refs:
             res.append([ref.product_id.id, ref.product_id.name, ref.product_id.unit_of_measure] + [ref.name for ref in ref.product_id.reference_ids])
         return res
     
-    def get_product_by_name(self, cr, uid, name):
-        product_obj = self.pool['perso.product']
-        product_ids = product_obj.search(cr, uid, [('name', 'ilike', name)])
+    @api.model
+    def get_product_by_name(self, name):
+        products = self.env['perso.product'].search([('name', 'ilike', name)])
         res = []
-        for product in product_obj.browse(cr, uid, product_ids):
+        for product in products:
             res.append([product.id, product.name, product.unit_of_measure] + [ref.name for ref in product.reference_ids])
         return res
     
-    def create_product(self, cr, uid, reference, name, unit_of_measure):
-        product_obj = self.pool['perso.product']
+    @api.model
+    def create_product(self, reference, name, unit_of_measure):
         value =  {
             "name" : name,
             "unit_of_measure" : unit_of_measure,
         }
         if reference:
             value["reference_ids"] = [(0, 0, {'name' : reference})]
-        print value
-        return product_obj.create(cr, uid, value)
+        return self.env['perso.product'].create(value).id
     
-    def get_product_without_ref(self, cr, uid):
-        product_obj = self.pool['perso.product']
-        product_ids = product_obj.search(cr, uid, [('reference_ids', '=', False)])
+    @api.model
+    def get_product_without_ref(self):
+        products = self.env['perso.product'].search([('reference_ids', '=', False)])
         res = []
-        for product in product_obj.browse(cr, uid, product_ids):
+        for product in products:
             res.append([product.id, product.name, product.unit_of_measure])
         return res
     
-    def _move(self, cr, uid, product_id, qty, reference, move_type):
-        print "move_type", move_type
+    def _move(self, product_id, qty, reference, move_type):
         if move_type not in ('in', 'out'):
             return False
         
@@ -68,13 +64,15 @@ class stock_service(Model):
             "quantity" : qty,
             "reference" : reference,
         }
-        return self.pool['perso.stock.move'].create(cr, uid, value)
+        return self.env['perso.stock.move'].create(value).id
     
-    def move_in(self, cr, uid, product_id, qty, reference):
-        return self._move(cr, uid, product_id, qty, reference, 'in')
-        
-    def move_out(self, cr, uid, product_id, qty, reference):
-        return self._move(cr, uid, product_id, qty, reference, 'out')
+    @api.model
+    def move_in(self, product_id, qty, reference):
+        return self._move(product_id, qty, reference, 'in')
+    
+    @api.model    
+    def move_out(self, product_id, qty, reference):
+        return self._move(product_id, qty, reference, 'out')
         
             
         

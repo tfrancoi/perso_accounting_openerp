@@ -1,42 +1,32 @@
 # -*- coding: utf-8 -*-
-from openerp.osv.orm import Model  
-from openerp.osv import fields,osv
 
-class product_reference(Model):
+from openerp import models, fields, api
+
+class product_reference(models.Model):
     _name = "perso.product.reference"
     
-    _columns = {
-        "name" : fields.char("Reference", required=True),
-        "product_id" : fields.many2one("perso.product", string="Product", required=True, ondelete="cascade"),
-    }
+    name = fields.Char("Reference", required=True)
+    product_id = fields.Many2one("perso.product", string="Product", required=True, ondelete="cascade")
     
-class product(Model):
+class product(models.Model):
     
     _name = "perso.product"
-    
-    def _get_quantity(self, cr ,uid, ids, fields, args, context=None):
-        res = dict.fromkeys(ids, 0.0)
 
-        move_obj = self.pool.get("perso.stock.move")
-        move_ids = move_obj.search(cr, uid, [('product_id', 'in', ids)], context=context)
-        for move in move_obj.browse(cr, uid, move_ids, context=context):
+    name = fields.Char("Name", required=True)
+    reference_ids = fields.One2many("perso.product.reference", "product_id", string="Reference")
+    unit_of_measure = fields.Char("Unit of Measure", default="Unit")
+    move_ids = fields.One2many("perso.stock.move", "product_id")
+    quantity = fields.Float(compute="_get_quantity", string="Quantity", readonly=True, store=True)
+    
+    @api.one
+    @api.depends('move_ids', 'move_ids.quantity')
+    def _get_quantity(self):
+        quantity = 0
+        for move in self.move_ids:
             if move.type == 'in':
-                res[move.product_id.id] += move.quantity
+                quantity += move.quantity
             elif move.type == 'out': 
-                res[move.product_id.id] -= move.quantity
-        return res
-        
-    
-    _columns = {
-        "name" : fields.char("Name", required=True),
-        "reference_ids" : fields.one2many("perso.product.reference", "product_id", string="Reference"),
-        "unit_of_measure" : fields.char("Unit of Measure"),
-        "quantity" : fields.function(_get_quantity, type="float", string="Quantity", readonly=True),
-    }
-    
-    _defaults = {
-        "unit_of_measure" : "Unit",
-    }
-    
+                quantity -= move.quantity
+        self.quantity = quantity
    
     

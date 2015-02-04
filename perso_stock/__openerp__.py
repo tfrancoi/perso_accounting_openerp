@@ -20,8 +20,8 @@
 ##############################################################################
 
 {
-    'name': 'Personnal Accounting module',
-    'description' : "Manage your personnal finance",
+    'name': 'Personnal Stock module',
+    'description' : "Manage your personnal stock",
     'version': '0.1',
     "category": 'Contact Management',
     'author': 'OpenERP SA',
