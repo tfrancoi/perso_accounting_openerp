@@ -5,6 +5,7 @@ from datetime import timedelta
 from datetime import date
 
 from openerp import models, fields, api
+from openerp.exceptions import Warning
 
 """
     Configuration Model
@@ -20,22 +21,64 @@ class bank_account(models.Model):
     ]
 
 class perso_account_period(models.Model):
-    
+
     _name = 'perso.account.period'
-    
+
     name = fields.Char("Name")
     date_start = fields.Date("Date Start")
     date_end = fields.Date("Date End")
     active = fields.Boolean("Active", default=True)
-  
-    
+    previous_period_id = fields.Many2one('perso.account.period')
+    state = fields.Selection([('open', 'Open'), ('closed', 'Closed')], default="open")
+    line_ids = fields.One2many('perso.account.report_line', 'period_id')
+
+    def _get_previous_line(self):
+        lines = {}
+        for line in self.previous_period_id.line_ids:
+            lines[(line.bank_id.id, line.account_id.id)] = line
+            
+        return lines
+
+    @api.multi
+    def open_period(self):
+        repot_env = self.env['perso.account.report_line']
+        repot_env.search([("period_id", '=', self.id)]).unlink()
+        self.state = "open"
+
+
+    @api.multi
+    def close_period(self):
+        if self.previous_period_id and self.previous_period_id.state != 'closed':
+            raise Warning('Previous Period not Close', 'please close the previous version before closing this one')
+        previous_lines = self._get_previous_line()
+
+        repot_env = self.env['perso.account.report_line']
+        repot_env.search([("period_id", '=', self.id)]).unlink()
+        for bank in self.env['perso.bank.account'].search([]):
+            accounts = self.env['perso.account'].with_context(period_id=self.name, bank_id=bank.name).search([])
+            for account in accounts:
+                previous_line = previous_lines.get((bank.id, account.id))
+                repot_env.create({
+                    'period_id' : self.id,
+                    'bank_id': bank.id,
+                    'account_id' : account.id,
+                    'type' : account.type,
+                    'amount' : account.amount,
+                    'amount_consolidated' : account.consolidated_amount,
+                    'cumulative_amount': (previous_line and previous_line.cumulative_amount or 0.0) + account.amount,
+                    'cumulative_amount_consolidated' : (previous_line and \
+                                                       previous_line.cumulative_amount_consolidated or 0.0) + \
+                                                       account.consolidated_amount
+                })
+        self.state = 'closed'
+
 """
     Account Model
 """
 class account(Model):
 
     _name = "perso.account"
-    
+
     name                = fields.Char("Name", required=True)
     parent_id           = fields.Many2one("perso.account", string="Parent Account")
     child_ids           = fields.One2many("perso.account", "parent_id", string="Children account", readonly=True)
@@ -53,7 +96,7 @@ class account(Model):
     bank_id             = fields.Many2one("perso.bank.account", compute="_get_dummy", string="Bank Account")
     budget              = fields.Float("Account budget")
     consolidated_budget = fields.Float(compute="_get_amount", string="Consolidated Budget", readonly=True)
-    
+
     @api.multi
     def _get_all_child(self, account, result):
         if not account.child_ids:
@@ -187,4 +230,4 @@ class cash_flow(Model):
         #Bug openerp
         #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
     
-
+        
