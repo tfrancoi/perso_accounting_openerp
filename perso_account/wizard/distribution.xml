@@ -1,58 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data>
-        <record model="ir.ui.view" id="wizard_distribution">
-            <field name="name">perso.account.distribution.view</field>
-            <field name="model">perso.account.distribution</field>
-            <field name="arch" type="xml">
-                <form string="Distribution" version="7.0">
-                	<div>
-                	 <h1><field name="name" readonly="1" /></h1>
-                	</div>
-                	<group>
-	                	<field name="cash_flow_id" 
-	                	       on_change="onchange_cash_flow(cash_flow_id)" 
-	                	       domain="[('reference', '!=', False), ('distributed', '=', False)]" />
-	                	<field name="account_regulation_id" />
-                	
-                	</group>
-                	<field name="line_ids">
-                		<tree editable="bottom">
-                			<field name="name" />
-                			<field name="amount" sum="Total"/>
-                			<field name="account_id" />
-                			<field name="value_date" />
-                		</tree>
-                	</field>
-                	<group>
-	                	<field name="amount" readonly="1" />
-                	</group>
-                	<footer>
-    	            	<button name="confirm" string="Confirm" type="object"/>
-                     	or
-                     	<button string="Cancel"  special="cancel" />
-    	            </footer>
-                </form>
-            </field>
-        </record>
-        
-        <record model="ir.actions.act_window" id="distribution">
-                <field name="name">Distribution</field>
-                <field name="res_model">perso.account.distribution</field>
-                <field name="view_type">form</field>
-                <field name="view_mode">form</field>
-                <field name="target">new</field>
-       </record>
-    
-    
-       <menuitem id="perso_account_tools"
-                  parent="perso_account_top"
-                  name="Tools" />
-                  
-       <menuitem id="perso_account_distribution"
-                  parent="perso_account_tools"
-                  name="Distribution"
-                  action="distribution" />
-                  
+	<data>
+		<record model="ir.ui.view" id="wizard_distribution">
+			<field name="name">perso.account.distribution.view</field>
+			<field name="model">perso.account.distribution</field>
+			<field name="arch" type="xml">
+				<form string="Distribution" version="7.0">
+					<div>
+						<h1>
+							<field name="name" readonly="0" />
+						</h1>
+					</div>
+					<group>
+						<field name="cash_flow_id"
+							domain="[('reference', '!=', False), ('distributed', '=', False)]" />
+						<field name="account_regulation_id" />
+
+					</group>
+					<field name="line_ids">
+						<tree editable="bottom">
+							<field name="name" />
+							<field name="amount" sum="Total" />
+							<field name="account_id" />
+							<field name="value_date" />
+						</tree>
+					</field>
+					<group>
+						<field name="amount" readonly="1" />
+					</group>
+					<group col="10">
+						<field name="template_id" colspan="8" />
+						<button name="save_as_template" string="Save" type="object" />
+						<button name="load_template" string="Load" type="object"  />
+					</group>
+					<footer>
+						<button name="confirm" string="Confirm" type="object" />
+						or
+						<button string="Cancel" special="cancel" />
+
+					</footer>
+				</form>
+			</field>
+		</record>
+
+		<record model="ir.actions.act_window" id="distribution">
+			<field name="name">Distribution</field>
+			<field name="res_model">perso.account.distribution</field>
+			<field name="view_type">form</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+
+		<menuitem id="perso_account_tools" parent="perso_account_top"
+			name="Tools" />
+
+		<menuitem id="perso_account_distribution" parent="perso_account_tools"
+			name="Distribution" action="distribution" />
+
+
+		<record model="ir.ui.view" id="wizard_distribution_template">
+			<field name="name">perso.account.distribution_template.view</field>
+			<field name="model">perso.account.distribution_template</field>
+			<field name="arch" type="xml">
+				<form string="Distribution" version="7.0">
+
+					<group>
+						<field name="name" />
+
+					</group>
+					<field name="line_ids">
+						<tree editable="bottom">
+							<field name="name" />
+							<field name="amount" sum="Total" />
+							<field name="account_id" />
+						</tree>
+					</field>
+				</form>
+			</field>
+		</record>
+
 	</data>
 </openerp>
