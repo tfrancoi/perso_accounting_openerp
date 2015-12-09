@@ -20,14 +20,14 @@ class odoo_connection_data(models.Model):
     database = fields.Char("Database", required=True)
     user = fields.Char("Login", required=True, default="admin")
     password = fields.Char("Password", required=True)
-    protocol = fields.Selection([('xmlrpc', 'Xmlrpc'), ('jsonrpc', 'Jsonrpc')], string="Protocol", default="xmlrpc")
+    protocol = fields.Selection([('xmlrpc', 'Xmlrpc'), ('xmlrpcs', 'XmlRPCS'), ('jsonrpc', 'Jsonrpc')], string="Protocol", default="xmlrpc")
     active = fields.Boolean("Active", default=True)
     
     @api.multi
     def test_connection(self):
         connection = self._get_connection()
         connection.check_login(force=True)
-        raise Warning(("Connection Successful"), ("Ok"))
+        raise Warning(("Connection Successful", 'OK'))
     
     def _get_connection(self):
         return openerplib.get_connection(hostname=self.host, 

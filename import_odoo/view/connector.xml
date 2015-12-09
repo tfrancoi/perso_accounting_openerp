@@ -59,7 +59,7 @@
             
    <menuitem
             id="odoo_import_form_menu"
-            parent="base.menu_config"
+            parent="base.menu_administration"
             name="Odoo Connector"
             action="odoo_import_form"/>
             
