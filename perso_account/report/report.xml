@@ -22,12 +22,23 @@
                 </graph>
             </field>
         </record>
+        
+        <record model="ir.ui.view" id="view_perso_account_report_line_pivot">
+            <field name="name">perso.account.report_line.pivot</field>
+            <field name="model">perso.account.report_line</field>
+            <field name="arch" type="xml">
+                <pivot string="Account Report" >
+                    <field name="account_id" group="True"/>
+                    <field name="amount" operator="+"/>
+                </pivot>
+            </field>
+        </record>
 
         <record model="ir.actions.act_window" id="account_report_act_form">
                 <field name="name">Account Report</field>
                 <field name="res_model">perso.account.report_line</field>
                 <field name="view_type">form</field>
-                <field name="view_mode">graph</field>
+                <field name="view_mode">pivot,graph</field>
        </record>
 
        <menuitem
