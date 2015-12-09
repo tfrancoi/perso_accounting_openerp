@@ -23,6 +23,8 @@ class bank_account(models.Model):
 class perso_account_period(models.Model):
 
     _name = 'perso.account.period'
+    
+    _order = 'date_start asc'
 
     name = fields.Char("Name")
     date_start = fields.Date("Date Start")
@@ -197,13 +199,14 @@ class cash_flow(Model):
     
     _name = "perso.account.cash_flow"
 
-    reference = fields.Char("Reference")
+    reference = fields.Char("Reference", copy=False)
     name = fields.Text("Description")
     account_id = fields.Many2one("perso.account", string="Account")
     bank_id = fields.Many2one("perso.bank.account", string="Bank Account", required=True)  
     value_date = fields.Date("Value Date", required=True)
     transaction_date = fields.Date("Transaction Date")
     amount = fields.Float("Amount", required=True)
+    amount_opposite = fields.Float(compute="_invert", store=True, string="Amount Inverted")
     type = fields.Selection(related="account_id.type", string="Type", store=True, readonly=True)
     period_id = fields.Many2one("perso.account.period", compute="_get_period", search="_search_period", string="Period")
     distributed = fields.Boolean("Has been distributed", readonly=True)
@@ -213,6 +216,11 @@ class cash_flow(Model):
     ]
     
     _order = "value_date desc"
+    
+    @api.one
+    @api.depends('amount')
+    def _invert(self):
+        self.amount_opposite = - self.amount
     
     @api.multi
     @api.depends('value_date')

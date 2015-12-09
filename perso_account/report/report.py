@@ -3,6 +3,9 @@ from openerp import models, fields, api
 
 class account_report_line(models.Model):
     _name = "perso.account.report_line"
+    
+    _order = 'period_id asc' 
+    
     amount = fields.Float('Amount')
     amount_consolidated = fields.Float('Amount Consolidated')
     period_id = fields.Many2one("perso.account.period", string="Period")
