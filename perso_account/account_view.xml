@@ -102,6 +102,7 @@
     <menuitem
             id="perso_account_top"
             name="Personnal Accounting"
+            web_icon="perso_account,static/description/icon.png"
             />
             
     <menuitem
