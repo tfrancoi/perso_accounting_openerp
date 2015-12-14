@@ -137,6 +137,7 @@ class import_framework():
         return val
 
     def _import_table(self, table):
+        self.logger.info('Import table %s' % table)
         data = self.get_data(table)
         map = self.get_mapping()[table]['map']
         hook = self.get_mapping()[table].get('hook', self.default_hook)
@@ -182,9 +183,11 @@ class import_framework():
         model_obj = self.obj.pool.get(model)
         if not model_obj:
             raise ValueError(_("%s is not a valid model name") % model)
-        self.logger.debug(_(" fields imported : ") + str(fields))
+        self.logger.info(_("fields imported : ") + str(fields))
         (p, r, warning, s) = model_obj.import_data(self.cr, self.uid, fields, res, mode='update', current_module=self.module_name, noupdate=False, context=self.context)
+        self.logger.info('%s %s %s %s %s' % ("Done", p, r, warning, s))
         for (field, field_name) in self_dependencies:
+            self.logger.info('Import parent %s' % field)
             self._import_self_dependencies(model_obj, field, datas)
         return (len(res), warning)
 
@@ -386,7 +389,7 @@ class import_framework():
             sh = StringIO.StringIO()
             traceback.print_exc(file=sh)
             error = sh.getvalue()
-            print error
+            self.logger.error(error)
 
 
         self.date_ended = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")

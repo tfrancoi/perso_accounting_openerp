@@ -9,6 +9,14 @@ from openerp.exceptions import Warning
 from openerp.addons.import_base.import_framework import *
 from openerp.addons.import_base.mapper import *
 
+from itertools import islice, chain
+
+def batch(iterable, size):
+    sourceiter = iter(iterable)
+    while True:
+        batchiter = islice(sourceiter, size)
+        yield chain([batchiter.next()], batchiter)
+
 
 class odoo_connection_data(models.TransientModel):
     
@@ -29,7 +37,10 @@ class migration_framework(import_framework):
                'perso.account.period', 
                'perso.account', 
                'perso.account.consolidation',
-               'perso.account.cash_flow',]
+               'perso.account.cash_flow',
+               'perso.account.distribution_template',
+               'perso.account.distribution_template.line', 
+               'perso.account.report_line']
 
     
     def initialize(self):
@@ -50,11 +61,9 @@ class migration_framework(import_framework):
             #        fields.append(f_name)
             #if f_name in self.black_list_field.get(model.model_name, []):
             #    print f_info
-        print fields
         return fields
     
     def res_to_dict(self, fields, datas):
-        datas = datas['datas']
         res = []
         for data in datas:
             data_dict = {}
@@ -68,7 +77,11 @@ class migration_framework(import_framework):
         obj = con.get_model(table)
         fields = self._get_field(obj)
         ids = obj.search([])
-        datas = obj.export_data(ids, fields)
+        datas = []
+        for b_ids in batch(ids, 400):
+            b_ids = [e for e in b_ids]
+            datas.extend(obj.export_data(b_ids, fields)['datas'])
+            self.logger.info('Exported %s' % b_ids)
         return self.res_to_dict(fields, datas)
 
     def _generate_xml_id(self, name, table):
@@ -98,6 +111,8 @@ class migration_framework(import_framework):
                     'date_start' : 'date_start',
                     'date_end' : 'date_end',
                     'active' : 'active', 
+                    'previous_period_id/id_parent' : 'previous_period_id/id', 
+                    'state' : 'state',
                 }
             },
             'perso.account' : {
@@ -132,6 +147,37 @@ class migration_framework(import_framework):
                     'transaction_date' : 'transaction_date', 
                     'amount' : 'amount',
                     'distributed' : 'distributed',
+                }
+            },
+            'perso.account.distribution_template' : { 
+                'model' : 'perso.account.distribution_template',
+                'dependencies' : [],
+                'map' : {
+                    'name': 'name',
+                }
+            },
+            'perso.account.distribution_template.line' : {
+                'model' : 'perso.account.distribution_template.line',
+                'dependencies' : ['perso.account.distribution_template', 'perso.account'],
+                'map' : {
+                    'name': 'name',
+                    'amount' : 'amount',
+                    'account_id/id' : 'account_id/id',
+                    'template_id/id' : 'template_id/id',
+                }
+            },
+            'perso.account.report_line' : {
+                'model' : 'perso.account.report_line',
+                'dependencies' : ['perso.account.period','perso.bank.account', 'perso.account'],
+                'map' : {
+                    'amount': 'amount',
+                    'amount_consolidated' : 'amount_consolidated',
+                    'period_id/id' : 'period_id/id',
+                    'bank_id/id' : 'bank_id/id',
+                    'account_id/id' : 'account_id/id',
+                    'type' : 'type',
+                    'cumulative_amount' : 'cumulative_amount',
+                    'cumulative_amount_consolidated' : 'cumulative_amount_consolidated',
                 }
             },
         }
