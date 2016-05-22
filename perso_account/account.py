@@ -232,8 +232,15 @@ class cash_flow(Model):
                 cash.period_id = period
 
     def _search_period(self, operator, period_id):
-        period = self.env["perso.account.period"].browse(period_id)
-        cash_ids = self.search([("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)])
+        if isinstance(period_id, basestring):
+            period = self.env["perso.account.period"].search([('name', operator, period_id)])
+        else:
+            period = self.env["perso.account.period"].browse([period_id])
+        domain = []
+        for p in period:
+            domain.extend(['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)])
+        domain = ['|'] * (len(domain) / 3 - 1 ) + domain
+        cash_ids = self.search(domain)
         return [('id', 'in', cash_ids.ids)]
         #Bug openerp
         #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
