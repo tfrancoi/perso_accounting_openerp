@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
 
-class account_report_line(models.Model):
+class AccountReportLine(models.Model):
     _name = "perso.account.report_line"
     
     _order = 'period_id asc' 
@@ -14,3 +14,4 @@ class account_report_line(models.Model):
     type = fields.Char()
     cumulative_amount = fields.Float("Cumulative Amount")
     cumulative_amount_consolidated = fields.Float("Cumulative Amount Consolidated")
+    period_type_id = fields.Many2one('perso.account.period_type')

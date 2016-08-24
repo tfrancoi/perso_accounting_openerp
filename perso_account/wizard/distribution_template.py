@@ -6,7 +6,7 @@
 '''
 from openerp import fields, models
 
-class distribution_template(models.Model):
+class DistributionTemplate(models.Model):
 
     _name = "perso.account.distribution_template"
 
@@ -14,7 +14,7 @@ class distribution_template(models.Model):
     line_ids = fields.One2many("perso.account.distribution_template.line", "template_id", string="Ventilation Lines")
 
 
-class distribution_template_line(models.Model):
+class DistributionTemplateLine(models.Model):
 
     _name = "perso.account.distribution_template.line"
 

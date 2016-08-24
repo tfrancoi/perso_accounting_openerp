@@ -5,7 +5,7 @@ from openerp.exceptions import ValidationError
 """
     Configuration Model
 """
-class bank_account(models.Model):
+class BankAccount(models.Model):
     
     _name = "perso.bank.account"
     
@@ -15,7 +15,13 @@ class bank_account(models.Model):
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
     ]
 
-class perso_account_period(models.Model):
+class AccountPeriodType(models.Model):
+
+    _name = 'perso.account.period_type'
+
+    name = fields.Char()
+
+class AccountPeriod(models.Model):
 
     _name = 'perso.account.period'
     
@@ -28,6 +34,8 @@ class perso_account_period(models.Model):
     previous_period_id = fields.Many2one('perso.account.period')
     state = fields.Selection([('open', 'Open'), ('closed', 'Closed')], default="open")
     line_ids = fields.One2many('perso.account.report_line', 'period_id')
+    type_id = fields.Many2one('perso.account.period_type')
+
 
     def _get_previous_line(self):
         lines = {}
@@ -55,6 +63,8 @@ class perso_account_period(models.Model):
             accounts = self.env['perso.account'].with_context(period_id=self.name, bank_id=bank.name).search([])
             for account in accounts:
                 previous_line = previous_lines.get((bank.id, account.id))
+                if not account.amount and not account.consolidated_amount:
+                    continue
                 repot_env.create({
                     'period_id' : self.id,
                     'bank_id': bank.id,
@@ -62,6 +72,7 @@ class perso_account_period(models.Model):
                     'type' : account.type,
                     'amount' : account.amount,
                     'amount_consolidated' : account.consolidated_amount,
+                    'period_type_id' : self.type_id.id,
                     'cumulative_amount': (previous_line and previous_line.cumulative_amount or 0.0) + account.amount,
                     'cumulative_amount_consolidated' : (previous_line and \
                                                        previous_line.cumulative_amount_consolidated or 0.0) + \
@@ -170,7 +181,7 @@ class Account(models.Model):
         self.period_id = False
         self.bank_id = False
 
-class consolidation_account(models.Model):
+class ConsolidationAccount(models.Model):
     
     _name = "perso.account.consolidation"
     
@@ -194,7 +205,7 @@ class consolidation_account(models.Model):
         self.bank_id = False
     
 
-class cash_flow(models.Model):
+class CashFlow(models.Model):
     
     _name = "perso.account.cash_flow"
 
@@ -236,7 +247,11 @@ class cash_flow(models.Model):
         else:
             period = self.env["perso.account.period"].browse([period_id])
 
-        domain = [['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)] for p in period]
+        domain = []
+        for p in period:
+            domain.extend(['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)])
         domain = ['|'] * (len(domain) / 3 - 1 ) + domain
 
+        print domain
+        print self.search(domain)
         return [('id', 'in', self.search(domain).ids)]

@@ -12,7 +12,7 @@ import csv
 import datetime
 
 
-class import_fortis(models.TransientModel):
+class ImportFortis(models.TransientModel):
     
     _name = "perso.account.import_fortis"
     

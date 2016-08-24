@@ -42,3 +42,6 @@
     'application': True,
     'active': False,
 }
+
+#TODO
+#No more state for period but a cron that generate everyday the report line

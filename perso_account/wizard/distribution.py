@@ -7,7 +7,7 @@
 from openerp import api, fields, models, _
 from openerp.exceptions import UserError
 
-class distribution(models.TransientModel):
+class Distribution(models.TransientModel):
 
     _name = "perso.account.distribution"
 

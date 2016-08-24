@@ -6,7 +6,7 @@
 '''
 from openerp import models, fields, api
 
-class load_chart_of_account(models.TransientModel):
+class LoadChartOfAccount(models.TransientModel):
 
     _name = "perso.account.load_chart_of_account"
 

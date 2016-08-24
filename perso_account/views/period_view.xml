@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <tree string="Period" editable="top">
                 <field name="name" />
+                <field name="type_id" />
                 <field name="date_start" />
                 <field name="date_end" />
                 <field name="previous_period_id" />
