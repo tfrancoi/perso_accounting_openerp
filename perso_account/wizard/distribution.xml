@@ -52,7 +52,7 @@
 		</record>
 
 
-		<menuitem id="perso_account_tools" parent="perso_account_top"
+		<menuitem id="perso_account_tools" parent="perso_account_top" sequence="20"
 			name="Tools" />
 
 		<menuitem id="perso_account_distribution" parent="perso_account_tools"

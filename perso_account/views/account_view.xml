@@ -1,123 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
-        <record model="ir.ui.view" id="view_perso_account_tree">
-            <field name="name">perso.account.tree</field>
-            <field name="model">perso.account</field>
-            <field name="arch" type="xml">
-                <tree string="Account" 
-                      colors="black:consolidated_budget == 0;red:consolidated_amount &lt; consolidated_budget;green:consolidated_amount &gt; consolidated_budget;">
-                    <field name="id" />
-                    <field name="name"/>
-                    <field name="type"/>
-                    <field name="amount" sum="Total" />
-                    <field name="consolidated_amount" sum="Total" />
-                    <field name="parent_id"/>
-                    <field name="consolidated_budget" />
-                </tree>
-            </field>
-        </record>
-        
-        <record model="ir.ui.view" id="view_account_tree_tree">
-            <field name="name">perso.account.tree.tree</field>
-            <field name="model">perso.account</field>
-            <field name="field_parent">child_ids</field>
-            <field name="arch" type="xml">
-                <tree string="Chart of account" toolbar="1">
-                    <field name="name"/>
-                    <field name="parent_id"/>
-                    <field name="type"/>
-                    <field name="amount" sum="Total" />
-                    <field name="consolidated_amount" sum="Total" />
-                    <field name="consolidated_budget" sum="Total Budget"/>
-                </tree>
-            </field>
-        </record>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_account_tree">
+        <field name="name">perso.account.tree</field>
+        <field name="model">perso.account</field>
+        <field name="arch" type="xml">
+            <tree string="Account"
+                colors="black:consolidated_budget == 0;red:consolidated_amount &lt; consolidated_budget;green:consolidated_amount &gt; consolidated_budget;">
+                <field name="id" />
+                <field name="name" />
+                <field name="type" />
+                <field name="amount" sum="Total" />
+                <field name="consolidated_amount" sum="Total" />
+                <field name="parent_id" />
+                <field name="consolidated_budget" />
+            </tree>
+        </field>
+    </record>
 
-        <record model="ir.ui.view" id="view_perso_account_search">
-            <field name="name">perso.account.search</field>
-            <field name="model">perso.account</field>
-            <field name="arch" type="xml">
-               <search string="Account">
-                    <field name="name" />
-                    <field name="parent_id" />
-                    <field name="type" />
-                    <field name="description" />
-                    <field name="period_id" context="{'period_id' : self}"/>
-                    <field name="bank_id" context="{'bank_id' : self}"/>
-                </search>
-            </field>
-        </record>
-        
-        <record model="ir.ui.view" id="view_perso_account_form">
-            <field name="name">perso.account.form</field>
-            <field name="model">perso.account</field>
-            <field name="arch" type="xml">
-               <form string="Account" version="7.0">
-                    <sheet>
-                        <group>
-                            <field name="name" />
-                            <field name="type" />
-                            <field name="parent_id" />
-                            <field name="amount" />
-                            <field name="budget" />
-                            <field name="consolidated_budget" />
-                        </group>
-                        <notebook>
-                            <page string="Child Account">
-                                <field name="child_ids" />
-                            </page>
-                            <page string="Cash Flows">
-                                <field name="cash_flow_ids">
-                                    <tree>
-                                        <field name="name"/>
-                                        <field name="bank_id"/>
-                                        <field name="amount" sum="Total" />
-                                        <field name="value_date"  />
-                                        <field name="transaction_date" />
-                                    </tree>
-                                </field>
-                            </page>
-                            <page string="Description">
-                                <field name="description" />
-                            </page>
-                        </notebook>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        
-		
-    
+    <record model="ir.ui.view" id="view_account_tree_tree">
+        <field name="name">perso.account.tree.tree</field>
+        <field name="model">perso.account</field>
+        <field name="field_parent">child_ids</field>
+        <field name="arch" type="xml">
+            <tree string="Chart of account" toolbar="1">
+                <field name="name" />
+                <field name="parent_id" />
+                <field name="type" />
+                <field name="amount" sum="Total" />
+                <field name="consolidated_amount" sum="Total" />
+                <field name="consolidated_budget" sum="Total Budget" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_account_search">
+        <field name="name">perso.account.search</field>
+        <field name="model">perso.account</field>
+        <field name="arch" type="xml">
+            <search string="Account">
+                <field name="name" />
+                <field name="parent_id" />
+                <field name="type" />
+                <field name="description" />
+                <field name="period_id" context="{'period_id' : self}" />
+                <field name="bank_id" context="{'bank_id' : self}" />
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_account_form">
+        <field name="name">perso.account.form</field>
+        <field name="model">perso.account</field>
+        <field name="arch" type="xml">
+            <form string="Account" version="7.0">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="type" />
+                        <field name="parent_id" />
+                        <field name="amount" />
+                        <field name="budget" />
+                        <field name="consolidated_budget" />
+                    </group>
+                    <notebook>
+                        <page string="Child Account">
+                            <field name="child_ids" />
+                        </page>
+                        <page string="Cash Flows">
+                            <field name="cash_flow_ids">
+                                <tree>
+                                    <field name="name" />
+                                    <field name="bank_id" />
+                                    <field name="amount" sum="Total" />
+                                    <field name="value_date" />
+                                    <field name="transaction_date" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Description">
+                            <field name="description" />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
     <record model="ir.actions.act_window" id="account_act_form">
-            <field name="name">Account</field>
-            <field name="res_model">perso.account</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-            <field name="view_id" ref="view_perso_account_tree" />
-   </record>
-   
-  
-    
-    <menuitem
-            id="perso_account_top"
-            name="Personnal Accounting"
-            web_icon="perso_account,static/description/icon.png"
-            />
-            
-    <menuitem
-            id="perso_account_root"
-            parent="perso_account_top"
-            name="Personnal Accounting"
-            />
-    <menuitem
-            id="perso_account_account"
-            parent="perso_account_root"
-            name="Account"
-            action="account_act_form"/>
-            
-    
-    
-    
-    </data>
-</openerp>
+        <field name="name">Account</field>
+        <field name="res_model">perso.account</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_perso_account_tree" />
+    </record>
+
+
+
+    <menuitem id="perso_account_top" name="Personnal Accounting"
+        web_icon="perso_account,static/description/icon.png" />
+
+    <menuitem id="perso_account_root" parent="perso_account_top"
+        name="Personnal Accounting" />
+    <menuitem id="perso_account_account" parent="perso_account_root"
+        name="Account" action="account_act_form" />
+</odoo>

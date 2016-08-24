@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    OpenERP, Open Source Management Solution
-#    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
+#    Copyright (C) 2013-2016 Thibault Francois (<thibault@françois.be>).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -22,11 +22,11 @@
 {
     'name': 'Personnal Accounting module',
     'description' : "Manage your personnal finance",
-    'version': '0.1',
+    'version': '1.0',
     "category": 'Contact Management',
     'author': 'OpenERP SA',
     'depends': ['base'],
-    'website': 'http://www.openerp.com',
+    'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
     'data': [
         'views/account_view.xml',
         'views/cash_flow_view.xml',
@@ -34,16 +34,11 @@
         'views/period_view.xml',
         'views/bank_account.xml',
         'report/report.xml',
-        'wizard/import_fortis.xml',
-        'wizard/load_chart_of_account_view.xml',
+        'report/load_chart_of_account_view.xml',
         'wizard/distribution.xml',
-        'data/bank_account.xml',
+        'wizard/import_fortis.xml',
     ],
     'installable': True,
     'application': True,
     'active': False,
-    #'images': [],
 }
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
-

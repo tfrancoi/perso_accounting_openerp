@@ -4,19 +4,19 @@
 
     @author: Thibault Francois
 '''
-from openerp import api, fields, models
-from openerp.exceptions import Warning
+from openerp import api, fields, models, _
+from openerp.exceptions import UserError
 
 class distribution(models.TransientModel):
 
     _name = "perso.account.distribution"
 
-    name = fields.Char("Name", default="Distribution")
-    cash_flow_id = fields.Many2one("perso.account.cash_flow", string="Cash flow to ventilate", required=True)
-    amount = fields.Float(compute="_get_amount", string="Cash Flow Amount")
+    name                  = fields.Char("Name", default="Distribution")
+    cash_flow_id          = fields.Many2one("perso.account.cash_flow", string="Cash flow to ventilate", required=True)
+    amount                = fields.Float(compute="_get_amount", string="Cash Flow Amount")
     account_regulation_id = fields.Many2one('perso.account', string="Compensation Cash Flow Account", required=True)
-    line_ids = fields.One2many("perso.account.distribution.line", "wizard_id", string="Ventilation Lines")
-    template_id = fields.Many2one('perso.account.distribution_template', string="Template")
+    line_ids              = fields.One2many("perso.account.distribution.line", "wizard_id", string="Ventilation Lines")
+    template_id           = fields.Many2one('perso.account.distribution_template', string="Template")
 
     @api.one
     @api.depends('cash_flow_id')
@@ -60,7 +60,7 @@ class distribution(models.TransientModel):
             })
             
         if self.amount - amount_sum > 0.001 or self.amount - amount_sum < -0.001:
-            raise Warning('Warning!', 'Amount does not match')
+            raise UserError(_('Amount does not match'))
         
         for cash_flow in cash_flow_to_create:
             self.env['perso.account.cash_flow'].create(cash_flow)
@@ -100,7 +100,7 @@ class distribution(models.TransientModel):
     def load_template(self):
         self.ensure_one()
         if not self.template_id:
-            raise Warning('Warning!', 'Please select a template before loading it')
+            raise UserError(_('Please select a template before loading it'))
 
         line_to_create = []
 
@@ -119,8 +119,8 @@ class distribution(models.TransientModel):
 class ventilation_line(models.TransientModel):
     _name = "perso.account.distribution.line" 
 
-    name = fields.Char("Description", required=True)
-    amount = fields.Float("Amount", required=True)
+    name       = fields.Char("Description", required=True)
+    amount     = fields.Float("Amount", required=True)
     account_id = fields.Many2one('perso.account', string="Account", required=True)
     value_date = fields.Date("Value Date", required=True)
-    wizard_id = fields.Many2one('perso.account.distribution', string="Wizard")
+    wizard_id  = fields.Many2one('perso.account.distribution', string="Wizard")

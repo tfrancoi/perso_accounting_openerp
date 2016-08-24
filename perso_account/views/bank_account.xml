@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
-    	<record model="ir.ui.view" id="view_perso_bank_account_tree">
-            <field name="name">perso.bank.account.tree</field>
-            <field name="model">perso.bank.account</field>
-            <field name="arch" type="xml">
-                <tree string="Bank Account" editable="bottom" >
-                    <field name="name"/>
-                </tree>
-            </field>
-        </record>
-        
-        <record model="ir.actions.act_window" id="bank_account_form">
-                <field name="name">Bank Account</field>
-                <field name="res_model">perso.bank.account</field>
-                <field name="view_type">form</field>
-                <field name="view_mode">tree</field>
-       </record>
-    
-    
-        <menuitem
-                id="perso_bank_account"
-                parent="perso_account_root"
-                name="Bank Account"
-                action="bank_account_form"
-                sequence="99" />
-    </data>
-</openerp>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_bank_account_tree">
+        <field name="name">perso.bank.account.tree</field>
+        <field name="model">perso.bank.account</field>
+        <field name="arch" type="xml">
+            <tree string="Bank Account" editable="bottom">
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="bank_account_form">
+        <field name="name">Bank Account</field>
+        <field name="res_model">perso.bank.account</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+
+    <menuitem id="perso_bank_account" parent="perso_account_configuration_root"
+        name="Bank Account" action="bank_account_form" sequence="99" />
+</odoo>

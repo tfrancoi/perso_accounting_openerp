@@ -4,29 +4,20 @@
 
     @author: Thibault Francois
 '''
-from openerp.osv.orm import Model, TransientModel
-from openerp.osv import fields,osv
-from datetime import timedelta
-from datetime import date
+from openerp import models, fields, api, _
+from openerp.exceptions import ValidationError
 from base64 import b64decode
-import csv
 from StringIO import StringIO
+import csv
 import datetime
 
 
-class import_fortis(TransientModel):
+class import_fortis(models.TransientModel):
     
     _name = "perso.account.import_fortis"
     
-    _columns = {
-        'name' : fields.char(string="Name"),
-        'file' : fields.binary(string="Fortis Export CSV", required=True),
-    }  
-    
-    # Specific to import fortis         
-    _defaults = {
-        'name' : "Import CSV exported from BNP Paribas Fortis",
-    }
+    name = fields.Char(string="Name", default="Import CSV exported from BNP Paribas Fortis")
+    file_to_import = fields.Binary(string="Fortis Export CSV", required=True)
     
     _date_format = "%d/%m/%Y"
     
@@ -56,26 +47,23 @@ class import_fortis(TransientModel):
         date_obj = datetime.datetime.strptime(orig_date, self._date_format)  
         return date_obj.strftime('%Y-%m-%d')
     
-    def _import_rec(self, cr, uid, rec, context=None):
-        bank_ids = self.pool.get('perso.bank.account').search(cr, uid, [('name', '=', rec['bank_id'].strip())])
+    def _import_rec(self, rec):
+        bank_ids = self.env['perso.bank.account'].search([('name', '=', rec['bank_id'].strip())])
         if not bank_ids:
-            raise Exception("Bank Account %s does not exist" % rec['bank_id'])
-        rec['bank_id'] = bank_ids[0]
+            raise ValidationError(_("Bank Account %s does not exist") % rec['bank_id'])
+        rec['bank_id'] = bank_ids[0].id
         rec['amount'] = float(rec['amount'].replace(self._decimal_sep, '.'))
         rec['transaction_date'] = self._to_iso_date(rec['transaction_date'])
         rec['value_date'] = self._to_iso_date(rec['value_date'])
-        cash_flow_obj = self.pool.get("perso.account.cash_flow")
-        if not cash_flow_obj.search(cr, uid, [('reference', '=', rec['reference'])], context=context):
-            cash_flow_obj.create(cr, uid, rec, context=context)
-        else:
-            print "DO not IMPORT", rec
+        cash_flow_env = self.env["perso.account.cash_flow"]
+        if not cash_flow_env.search([('reference', '=', rec['reference']), ('bank_id', '=', rec['bank_id'])]):
+            cash_flow_env.create(rec)
         
-    
-    def import_file(self, cr, uid, ids, context=None):
-        assert len(ids) == 1
-        wizard = self.browse(cr, uid, ids[0], context=context)
-        csv_file = StringIO(b64decode(wizard.file))
+    @api.multi
+    def import_file(self):
+        self.ensure_one()
+        csv_file = StringIO(b64decode(self.file_to_import))
         data = csv.DictReader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
         for line in data:
-            self._import_rec(cr, uid, self._map(line), context)
+            self._import_rec(self._map(line))
             

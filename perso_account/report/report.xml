@@ -1,54 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
-        <record model="ir.ui.view" id="view_perso_account_report_line_search">
-            <field name="name">perso.account.report_line.search</field>
-            <field name="model">perso.account.report_line</field>
-            <field name="arch" type="xml">
-                <search string="Account Report" >
-                    <field name="account_id"/>
-                    <field name="bank_id"/>
-                    <field name="period_id"/>
-                </search>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="view_perso_account_report_line">
-            <field name="name">perso.account.report_line.graph</field>
-            <field name="model">perso.account.report_line</field>
-            <field name="arch" type="xml">
-                <graph string="Account Report" type="pie">
-                    <field name="account_id" group="True"/>
-                    <field name="amount" operator="+"/>
-                </graph>
-            </field>
-        </record>
-        
-        <record model="ir.ui.view" id="view_perso_account_report_line_pivot">
-            <field name="name">perso.account.report_line.pivot</field>
-            <field name="model">perso.account.report_line</field>
-            <field name="arch" type="xml">
-                <pivot string="Account Report" >
-                    <field name="account_id" group="True"/>
-                    <field name="amount" operator="+"/>
-                </pivot>
-            </field>
-        </record>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_account_report_line_search">
+        <field name="name">perso.account.report_line.search</field>
+        <field name="model">perso.account.report_line</field>
+        <field name="arch" type="xml">
+            <search string="Account Report">
+                <field name="account_id" />
+                <field name="bank_id" />
+                <field name="period_id" />
+            </search>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="view_perso_account_report_line">
+        <field name="name">perso.account.report_line.graph</field>
+        <field name="model">perso.account.report_line</field>
+        <field name="arch" type="xml">
+            <graph string="Account Report" type="pie">
+                <field name="account_id" group="True" />
+                <field name="amount" operator="+" />
+            </graph>
+        </field>
+    </record>
 
-        <record model="ir.actions.act_window" id="account_report_act_form">
-                <field name="name">Account Report</field>
-                <field name="res_model">perso.account.report_line</field>
-                <field name="view_type">form</field>
-                <field name="view_mode">pivot,graph</field>
-       </record>
+    <record model="ir.ui.view" id="view_perso_account_report_line_pivot">
+        <field name="name">perso.account.report_line.pivot</field>
+        <field name="model">perso.account.report_line</field>
+        <field name="arch" type="xml">
+            <pivot string="Account Report">
+                <field name="account_id" group="True" />
+                <field name="amount" operator="+" />
+            </pivot>
+        </field>
+    </record>
 
-       <menuitem
-                id="perso_account_report"
-                parent="perso_account_top"
-                name="Report" />
-       <menuitem
-                id="perso_account_report_menu"
-                parent="perso_account_report"
-                name="Report"
-                action="account_report_act_form"/>
-    </data>
-</openerp>
+    <record model="ir.actions.act_window" id="account_report_act_form">
+        <field name="name">Account Report</field>
+        <field name="res_model">perso.account.report_line</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">pivot,graph</field>
+    </record>
+
+    <menuitem id="perso_account_report" parent="perso_account_top" sequence="30"
+        name="Report" />
+    <menuitem id="perso_account_report_menu" parent="perso_account_report"
+        name="Report" action="account_report_act_form" />
+</odoo>

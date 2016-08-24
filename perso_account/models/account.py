@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp.osv.orm import Model  
-from openerp.osv import fields,osv
-from datetime import timedelta
-from datetime import date
-
-from openerp import models, fields, api
-from openerp.exceptions import Warning
+from openerp import models, fields, api, _
+from openerp.exceptions import ValidationError
 
 """
     Configuration Model
@@ -51,7 +46,7 @@ class perso_account_period(models.Model):
     @api.multi
     def close_period(self):
         if self.previous_period_id and self.previous_period_id.state != 'closed':
-            raise Warning('Previous Period not Close', 'please close the previous version before closing this one')
+            raise ValidationError(_('please close the previous version before closing this one'))
         previous_lines = self._get_previous_line()
 
         repot_env = self.env['perso.account.report_line']
@@ -77,7 +72,7 @@ class perso_account_period(models.Model):
 """
     Account Model
 """
-class account(Model):
+class Account(models.Model):
 
     _name = "perso.account"
 
@@ -162,16 +157,20 @@ class account(Model):
             account.amount = amount[account.id]
             account.consolidated_amount = consolidated_amount[account.id]
             account.consolidated_budget = consolidated_budget[account.id]
-            
-        
-   
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        res = super(Account, self).search(args, offset, limit, order, count=count)
+        if self.env.context.get('hide_empty_account'):
+            res = res.filtered(lambda x : x.amount != 0.0 or x.consolidated_amount != 0.0)
+        return res
     
     @api.one
     def _get_dummy(self):
         self.period_id = False
         self.bank_id = False
 
-class consolidation_account(Model):
+class consolidation_account(models.Model):
     
     _name = "perso.account.consolidation"
     
@@ -195,24 +194,24 @@ class consolidation_account(Model):
         self.bank_id = False
     
 
-class cash_flow(Model):
+class cash_flow(models.Model):
     
     _name = "perso.account.cash_flow"
 
-    reference = fields.Char("Reference", copy=False)
-    name = fields.Text("Description")
-    account_id = fields.Many2one("perso.account", string="Account")
-    bank_id = fields.Many2one("perso.bank.account", string="Bank Account", required=True)  
-    value_date = fields.Date("Value Date", required=True)
-    transaction_date = fields.Date("Transaction Date")
-    amount = fields.Float("Amount", required=True)
-    amount_opposite = fields.Float(compute="_invert", store=True, string="Amount Inverted")
-    type = fields.Selection(related="account_id.type", string="Type", store=True, readonly=True)
-    period_id = fields.Many2one("perso.account.period", compute="_get_period", search="_search_period", string="Period")
-    distributed = fields.Boolean("Has been distributed", readonly=True)
+    reference           = fields.Char("Reference", copy=False)
+    name                = fields.Text("Description")
+    account_id          = fields.Many2one("perso.account", string="Account")
+    bank_id             = fields.Many2one("perso.bank.account", string="Bank Account", required=True)
+    value_date          = fields.Date("Value Date", required=True)
+    transaction_date    = fields.Date("Transaction Date")
+    amount              = fields.Float("Amount", required=True)
+    amount_opposite     = fields.Float(compute="_invert", store=True, string="Amount Inverted")
+    type                = fields.Selection(related="account_id.type", string="Type", store=True, readonly=True)
+    period_id           = fields.Many2one("perso.account.period", compute="_get_period", search="_search_period", string="Period")
+    distributed         = fields.Boolean("Has been distributed", readonly=True)
     
     _sql_constraints = [
-        ('ref_uniq', 'unique (reference)', 'Each reference must be unique.')
+        ('ref_uniq', 'unique (reference, bank_id)', 'Each reference must be unique per bank account.')
     ]
     
     _order = "value_date desc"
@@ -236,13 +235,8 @@ class cash_flow(Model):
             period = self.env["perso.account.period"].search([('name', operator, period_id)])
         else:
             period = self.env["perso.account.period"].browse([period_id])
-        domain = []
-        for p in period:
-            domain.extend(['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)])
+
+        domain = [['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)] for p in period]
         domain = ['|'] * (len(domain) / 3 - 1 ) + domain
-        cash_ids = self.search(domain)
-        return [('id', 'in', cash_ids.ids)]
-        #Bug openerp
-        #return [("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end)]
-    
-        
+
+        return [('id', 'in', self.search(domain).ids)]

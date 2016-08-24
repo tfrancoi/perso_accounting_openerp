@@ -10,7 +10,7 @@
                 	 <h1><field name="name" readonly="1" /></h1>
                 	</div>
                 	<group>
-	                	<field name="file" string="Select file to import"/>
+	                	<field name="file_to_import" string="Select file to import"/>
                 	
                 	</group>
                 	<footer>
@@ -32,7 +32,7 @@
     
     
        <menuitem id="perso_account_import_parent"
-                  parent="perso_account_top"
+                  parent="perso_account_tools"
                   name="Import" />
                   
        <menuitem id="perso_account_import_fortis"

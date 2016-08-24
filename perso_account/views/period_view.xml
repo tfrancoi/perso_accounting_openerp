@@ -1,63 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-    <data>
-		<record model="ir.ui.view" id="view_perso_account_period_tree">
-            <field name="name">perso.account.period.tree</field>
-            <field name="model">perso.account.period</field>
-            <field name="arch" type="xml">
-                <tree string="Period" editable="top">
-                    <field name="name"/>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_account_period_tree">
+        <field name="name">perso.account.period.tree</field>
+        <field name="model">perso.account.period</field>
+        <field name="arch" type="xml">
+            <tree string="Period" editable="top">
+                <field name="name" />
+                <field name="date_start" />
+                <field name="date_end" />
+                <field name="previous_period_id" />
+                <field name="active" />
+                <button name="close_period" string="Close" type="object"
+                    attrs="{'readonly' : [('state', '=', 'closed')]}" />
+                <button name="open_period" string="Open" type="object"
+                    attrs="{'readonly' : [('state', '=', 'open')]}" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_account_period_form">
+        <field name="name">perso.account.period.form</field>
+        <field name="model">perso.account.period</field>
+        <field name="arch" type="xml">
+            <form string="Period" version="7.0">
+                <sheet>
+                    <field name="name" />
                     <field name="date_start" />
                     <field name="date_end" />
-                    <field name="previous_period_id"/>
                     <field name="active" />
-                    <button name="close_period" string="Close" type="object"
-                            attrs="{'readonly' : [('state', '=', 'closed')]}" />
-                    <button name="open_period" string="Open" type="object"
-                            attrs="{'readonly' : [('state', '=', 'open')]}" />
-                    <field name="state" />
-                </tree>
-            </field>
-        </record>
-        
-        <record model="ir.ui.view" id="view_perso_account_period_form">
-            <field name="name">perso.account.period.form</field>
-            <field name="model">perso.account.period</field>
-            <field name="arch" type="xml">
-                <form string="Period" version="7.0">
-                    <sheet>
-	                    <field name="name"/>
-	                    <field name="date_start" />
-	                    <field name="date_end" />
-	                    <field name="active" />
-                    </sheet>
-                </form>
-            </field>
-        </record>
-        
-    	<record model="ir.ui.view" id="view_perso_account_period_search">
-            <field name="name">perso.account.period.search</field>
-            <field name="model">perso.account.period</field>
-            <field name="arch" type="xml">
-               <search string="Period">
-                    <field name="name" />
-                </search>
-            </field>
-        </record>
-        
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_account_period_search">
+        <field name="name">perso.account.period.search</field>
+        <field name="model">perso.account.period</field>
+        <field name="arch" type="xml">
+            <search string="Period">
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
     <record model="ir.actions.act_window" id="account_period_act_form">
-            <field name="name">Period</field>
-            <field name="res_model">perso.account.period</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
-   </record>
-   
-	<menuitem
-            id="perso_account_period_menu"
-            parent="perso_account_root"
-            name="Period"
-            action="account_period_act_form"/>
-            
-	
-    </data>
-</openerp>
+        <field name="name">Period</field>
+        <field name="res_model">perso.account.period</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="perso_account_configuration_root" parent="perso_account_top"
+        name="Configuration" sequence="99" />
+
+    <menuitem id="perso_account_period_menu" parent="perso_account_configuration_root"
+        name="Period" action="account_period_act_form" />
+
+</odoo>
