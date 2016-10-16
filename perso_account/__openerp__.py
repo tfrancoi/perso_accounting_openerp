@@ -49,3 +49,4 @@
 #Menuitem to run manually report generation
 #Per user, Account and bank account and cash flow and period per user
 # Access right
+#Perf analysis on report generation
