@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_account_asset_tree">
+        <field name="name">perso.account.asset.tree</field>
+        <field name="model">perso.account.asset</field>
+        <field name="arch" type="xml">
+            <tree string="Asset">
+                <field name="name" />
+                <field name="value" sum="total" />
+                <field name="start_date" />
+                <field name="end_date" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_account_asset_form">
+        <field name="name">perso.account.asset.form</field>
+        <field name="model">perso.account.asset</field>
+        <field name="arch" type="xml">
+            <form string="Asset">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="value" />
+                            <field name="cash_flow_id" />
+                        </group>
+                        <group>
+                            <field name="start_date" />
+                            <field name="end_date" />
+                        </group>
+                    </group>
+                    <field name="document_ids">
+                        <tree editable="bottom">
+                            <field name="name" />
+                            <field name="fname" invisible="1" />
+                            <field name="data" filename="fname" />
+                        </tree>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <record model="ir.actions.act_window" id="asset_act_form">
+        <field name="name">Asset</field>
+        <field name="res_model">perso.account.asset</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form,pivot</field>
+    </record>
+
+
+
+    <menuitem id="perso_account_asset" parent="perso_account.perso_account_root"
+        name="Asset" action="asset_act_form" />
+</odoo>
