@@ -11,11 +11,6 @@
                 <field name="date_end" />
                 <field name="previous_period_id" />
                 <field name="active" />
-                <button name="close_period" string="Close" type="object"
-                    attrs="{'readonly' : [('state', '=', 'closed')]}" />
-                <button name="open_period" string="Open" type="object"
-                    attrs="{'readonly' : [('state', '=', 'open')]}" />
-                <field name="state" />
             </tree>
         </field>
     </record>

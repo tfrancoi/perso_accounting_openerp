@@ -23,8 +23,8 @@
     'name': 'Personnal Accounting module',
     'description' : "Manage your personnal finance",
     'version': '1.0',
-    "category": 'Contact Management',
-    'author': 'OpenERP SA',
+    "category": 'Perso Account',
+    'author': 'Thibault Francois',
     'depends': ['base'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
     'data': [
@@ -37,6 +37,7 @@
         'report/load_chart_of_account_view.xml',
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
+        'data/cron.xml',
     ],
     'installable': True,
     'application': True,
@@ -44,4 +45,7 @@
 }
 
 #TODO
-#No more state for period but a cron that generate everyday the report line
+#Clean cash flow and cash flow quick assign
+#Menuitem to run manually report generation
+#Per user, Account and bank account and cash flow and period per user
+# Access right

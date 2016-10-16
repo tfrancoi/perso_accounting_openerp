@@ -32,7 +32,6 @@ class AccountPeriod(models.Model):
     date_end = fields.Date("Date End")
     active = fields.Boolean("Active", default=True)
     previous_period_id = fields.Many2one('perso.account.period')
-    state = fields.Selection([('open', 'Open'), ('closed', 'Closed')], default="open")
     line_ids = fields.One2many('perso.account.report_line', 'period_id')
     type_id = fields.Many2one('perso.account.period_type')
 
@@ -44,17 +43,8 @@ class AccountPeriod(models.Model):
             
         return lines
 
-    @api.multi
-    def open_period(self):
-        repot_env = self.env['perso.account.report_line']
-        repot_env.search([("period_id", '=', self.id)]).unlink()
-        self.state = "open"
-
-
-    @api.multi
-    def close_period(self):
-        if self.previous_period_id and self.previous_period_id.state != 'closed':
-            raise ValidationError(_('please close the previous version before closing this one'))
+    def _close_period(self):
+        self.ensure_one()
         previous_lines = self._get_previous_line()
 
         repot_env = self.env['perso.account.report_line']
@@ -62,8 +52,9 @@ class AccountPeriod(models.Model):
         for bank in self.env['perso.bank.account'].search([]):
             accounts = self.env['perso.account'].with_context(period_id=self.name, bank_id=bank.name).search([])
             for account in accounts:
-                previous_line = previous_lines.get((bank.id, account.id))
-                if not account.amount and not account.consolidated_amount:
+                previous_line = previous_lines.get((bank.id, account.id), repot_env)
+                if not account.amount and not account.consolidated_amount \
+                   and not previous_line.cumulative_amount and not previous_line.cumulative_amount_consolidated:
                     continue
                 repot_env.create({
                     'period_id' : self.id,
@@ -73,12 +64,9 @@ class AccountPeriod(models.Model):
                     'amount' : account.amount,
                     'amount_consolidated' : account.consolidated_amount,
                     'period_type_id' : self.type_id.id,
-                    'cumulative_amount': (previous_line and previous_line.cumulative_amount or 0.0) + account.amount,
-                    'cumulative_amount_consolidated' : (previous_line and \
-                                                       previous_line.cumulative_amount_consolidated or 0.0) + \
-                                                       account.consolidated_amount
+                    'cumulative_amount': previous_line.cumulative_amount + account.amount,
+                    'cumulative_amount_consolidated' : previous_line.cumulative_amount_consolidated + account.consolidated_amount
                 })
-        self.state = 'closed'
 
 """
     Account Model
@@ -252,6 +240,4 @@ class CashFlow(models.Model):
             domain.extend(['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)])
         domain = ['|'] * (len(domain) / 3 - 1 ) + domain
 
-        print domain
-        print self.search(domain)
         return [('id', 'in', self.search(domain).ids)]

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_generate_report" model="ir.cron">
+        <field name="name">Account Generate Report Line</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="model">perso.account.report_line</field>
+        <field name="function">_generate_line</field>
+        <field name="args">()</field>
+    </record>
+</odoo>
