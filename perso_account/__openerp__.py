@@ -37,6 +37,7 @@
         'report/load_chart_of_account_view.xml',
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
+        'wizard/import_fortis_new.xml',
         'data/cron.xml',
     ],
     'installable': True,

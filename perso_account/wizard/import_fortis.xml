@@ -37,7 +37,7 @@
                   
        <menuitem id="perso_account_import_fortis"
                   parent="perso_account_import_parent"
-                  name="Import Fortis"
+                  name="Import Fortis (Old)"
                   action="import_fortis" />
                   
 	</data>
