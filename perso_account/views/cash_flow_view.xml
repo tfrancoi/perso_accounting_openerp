@@ -4,15 +4,16 @@
         <field name="name">perso.account.cash_flow.tree</field>
         <field name="model">perso.account.cash_flow</field>
         <field name="arch" type="xml">
-            <tree string="Cash Flow">
+            <tree string="Cash Flow" editable="top">
+                <field name="reference" readonly="0" invisible="0" />
+                <field name="bank_id" />
                 <field name="name" />
                 <field name="account_id" />
-                <field name="bank_id" readonly="0" invisible="1" />
                 <field name="amount" sum="Total" readonly="0" />
                 <field name="value_date" />
                 <field name="transaction_date" invisible="1" />
                 <field name="type" />
-                <field name="reference" readonly="0" invisible="1" />
+                <button name="edit" type="object" string="edit" />
             </tree>
         </field>
     </record>

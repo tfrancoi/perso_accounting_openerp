@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp.osv.orm import Model  
-from openerp.osv import fields,osv
-
-from openerp import models, fields, api
+from odoo import models, fields, api
 
 
 class stock_move(models.Model):
@@ -17,7 +14,7 @@ class stock_move(models.Model):
     
     
     
-class stock_service(Model):
+class stock_service(models.Model):
     _name = 'perso.stock.service'
     
     @api.model
