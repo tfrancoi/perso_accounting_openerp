@@ -113,16 +113,4 @@
             </tree>
         </field>
     </record>
-
-
-    <record model="ir.actions.act_window" id="cash_flow_act_form_quick_assign">
-        <field name="name">Cash Flow</field>
-        <field name="res_model">perso.account.cash_flow</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">tree</field>
-        <field name="view_id" ref="view_perso_cash_flow_tree_quick_assign" />
-    </record>
-
-    <menuitem id="perso_account_cash_flow_manage" parent="perso_account_root"
-        name="Cash Flow Quick Assign" action="cash_flow_act_form_quick_assign" />
 </odoo>

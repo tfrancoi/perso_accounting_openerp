@@ -241,3 +241,15 @@ class CashFlow(models.Model):
         domain = ['|'] * (len(domain) / 3 - 1 ) + domain
 
         return [('id', 'in', self.search(domain).ids)]
+
+    @api.multi
+    def edit(self):
+        self.ensure_one()
+        return {
+            'name': 'Edit Cash Flow',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'perso.account.cash_flow',
+            'type': 'ir.actions.act_window',
+            'res_id' : self.id,
+        }
