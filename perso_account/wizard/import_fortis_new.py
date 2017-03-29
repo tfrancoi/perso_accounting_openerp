@@ -17,7 +17,7 @@ class ImportFortis(models.TransientModel):
         1: "transaction_date",
         2: "value_date",
         3: 'amount',
-        5: "name",
-        6: "bank_id",
+        6: "name",
+        7: "bank_id",
     }
 
