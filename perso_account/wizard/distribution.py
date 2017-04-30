@@ -138,7 +138,8 @@ class Distribution(models.TransientModel):
 
 
 class ventilation_line(models.TransientModel):
-    _name = "perso.account.distribution.line" 
+    _name = "perso.account.distribution.line"
+    #TODO add transaction date
 
     name       = fields.Char("Description", required=True)
     amount     = fields.Float("Amount", required=True)

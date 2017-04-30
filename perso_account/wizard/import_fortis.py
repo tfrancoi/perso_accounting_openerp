@@ -48,7 +48,7 @@ class ImportFortis(models.TransientModel):
         if not cash_flow_env.search([('reference', '=', rec['reference']), ('bank_id', '=', rec['bank_id'])]):
             if len(rec['reference']) == 5 and rec['reference'][-1] == '-':
                 return
-            cash_flow_env.create(rec)
+            return cash_flow_env.create(rec)
 
     #End of specific to import fortis
     def _map(self, record):
@@ -70,6 +70,16 @@ class ImportFortis(models.TransientModel):
         data = csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
         #remove Header
         data.next()
+        cash_flow_ids = self.env['perso.account.cash_flow']
         for line in data:
-            self._import_rec(self._map(line))
+            res = self._import_rec(self._map(line))
+            if res:
+                cash_flow_ids |= res
 
+        return {
+            'type' : "ir.actions.act_window",
+            'res_model' : 'perso.account.cash_flow',
+            'view_mode' : 'list,pivot,graph',
+            'target' : "current",
+            'domain' : [('id', 'in', cash_flow_ids.ids)]
+        }
