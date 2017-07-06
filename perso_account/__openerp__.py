@@ -37,7 +37,7 @@
         'report/load_chart_of_account_view.xml',
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
-        'wizard/import_fortis_new.xml',
+        'wizard/import_axa.xml',
         'data/cron.xml',
     ],
     'installable': True,
@@ -46,8 +46,6 @@
 }
 
 #TODO
-#Clean cash flow and cash flow quick assign
-#Menuitem to run manually report generation
 #Per user, Account and bank account and cash flow and period per user
 # Access right
 #Perf analysis on report generation

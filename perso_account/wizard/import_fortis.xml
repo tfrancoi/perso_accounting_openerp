@@ -5,7 +5,7 @@
             <field name="name">perso.account.wizard_import_fortis</field>
             <field name="model">perso.account.import_fortis</field>
             <field name="arch" type="xml">
-                <form string="Import Fortis" version="7.0">
+                <form string="Import Fortis">
                 	<div>
                 	 <h1><field name="name" readonly="1" /></h1>
                 	</div>
@@ -37,7 +37,7 @@
                   
        <menuitem id="perso_account_import_fortis"
                   parent="perso_account_import_parent"
-                  name="Import Fortis (Old)"
+                  name="Import Fortis"
                   action="import_fortis" />
                   
 	</data>

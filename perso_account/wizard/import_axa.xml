@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <record model="ir.ui.view" id="wizard_import_fortis_new">
-            <field name="name">perso.account.wizard_import_fortis_new</field>
-            <field name="model">perso.account.import_fortis_new</field>
+        <record model="ir.ui.view" id="wizard_import_axa">
+            <field name="name">perso.account.wizard_import_axa</field>
+            <field name="model">perso.account.import_axa</field>
             <field name="arch" type="xml">
                 <form string="Import Fortis">
                     <div>
@@ -21,19 +21,19 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="import_fortis_new">
-                <field name="name">Import Fortis</field>
-                <field name="res_model">perso.account.import_fortis_new</field>
+        <record model="ir.actions.act_window" id="import_axa">
+                <field name="name">Import Axa</field>
+                <field name="res_model">perso.account.import_axa</field>
                 <field name="view_type">form</field>
                 <field name="view_mode">form</field>
                 <field name="target">new</field>
        </record>
 
 
-       <menuitem id="perso_account_import_fortis_new"
+       <menuitem id="perso_account_import_axa"
                   parent="perso_account_import_parent"
-                  name="Import Fortis"
-                  action="import_fortis_new" />
+                  name="Import Axa"
+                  action="import_axa" />
 
     </data>
 </openerp>

@@ -25,7 +25,9 @@ class ImportFortis(models.TransientModel):
     _decimal_sep = ","
     _csv_delimiter = ";"
     _csv_quote = '"'
-    
+    _header_length = 8
+    _encoding = 'iso-8859-1'
+
     _cash_flow_mapping = {
         0: "reference",
         1: "transaction_date",
@@ -50,13 +52,18 @@ class ImportFortis(models.TransientModel):
                 return
             return cash_flow_env.create(rec)
 
+    def _read_header(self, data):
+        header = []
+        while len(header) != self._header_length:
+            header = data.next()
+
     #End of specific to import fortis
     def _map(self, record):
         mapped_rec = {}
         for index, v in enumerate(record):
             if self._cash_flow_mapping.get(index):
                 new_key = self._cash_flow_mapping.get(index)
-                mapped_rec[new_key] = v
+                mapped_rec[new_key] = v.decode(self._encoding).encode('utf-8')
         return mapped_rec
 
     def _to_iso_date(self, orig_date):
@@ -69,7 +76,7 @@ class ImportFortis(models.TransientModel):
         csv_file = StringIO(b64decode(self.file_to_import))
         data = csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
         #remove Header
-        data.next()
+        self._read_header(data)
         cash_flow_ids = self.env['perso.account.cash_flow']
         for line in data:
             res = self._import_rec(self._map(line))
