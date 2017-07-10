@@ -9,11 +9,29 @@ class BankAccount(models.Model):
     
     _name = "perso.bank.account"
     
-    name = fields.Char("Name", required=True)
+    name = fields.Char("Number", required=True)
+    description = fields.Char("Description")
     
     _sql_constraints = [
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
     ]
+
+    @api.multi
+    @api.depends('name', 'description')
+    def name_get(self):
+        result = []
+        for rec in self:
+            result.append((rec.id, '%s - %s' % (rec.description, rec.name)))
+        return result
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        domain = []
+        if name:
+            domain = ['|', ('name', operator, name), ('description', operator, name)]
+        banks = self.search(domain + args, limit=limit)
+        return banks.name_get()
 
 class AccountPeriodType(models.Model):
 

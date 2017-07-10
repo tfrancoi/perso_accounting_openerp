@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="wizard_import_keytrade">
+            <field name="name">perso.account.wizard_import_keytrade</field>
+            <field name="model">perso.account.import_keytrade</field>
+            <field name="arch" type="xml">
+                <form string="Import Fortis">
+                    <div>
+                        <h1><field name="name" readonly="1" /></h1>
+                    </div>
+                    <group>
+                        <field name="bank_id" string="Select Bank Account" />
+                        <field name="file_to_import" string="Select file to import"/>
+                    </group>
+                    <footer>
+                        <button name="import_file" string="Import" type="object"/>
+                        or
+                        <button string="Cancel"  special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="import_keytrade">
+                <field name="name">Import Keytrade</field>
+                <field name="res_model">perso.account.import_keytrade</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">form</field>
+                <field name="target">new</field>
+       </record>
+
+
+       <menuitem id="perso_account_import_keytrade"
+                  parent="perso_account_import_parent"
+                  name="Import Keytrade"
+                  action="import_keytrade" />
+
+    </data>
+</openerp>

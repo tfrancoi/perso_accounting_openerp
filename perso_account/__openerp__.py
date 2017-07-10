@@ -38,6 +38,7 @@
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
         'wizard/import_axa.xml',
+        'wizard/import_keytrade.xml',
         'data/cron.xml',
     ],
     'installable': True,

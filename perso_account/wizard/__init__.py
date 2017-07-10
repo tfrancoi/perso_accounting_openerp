@@ -5,5 +5,6 @@ Created on 25 janv. 2014
 '''
 import import_fortis
 import import_axa
+import import_keytrade
 import distribution
 import distribution_template
