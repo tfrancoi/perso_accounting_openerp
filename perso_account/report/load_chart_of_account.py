@@ -11,13 +11,13 @@ class LoadChartOfAccount(models.TransientModel):
     _name = "perso.account.load_chart_of_account"
 
     period_id = fields.Many2one("perso.account.period", string="Period")
-    bank_id   = fields.Many2one("perso.bank.account", string="Bank Account")
+    bank_ids   = fields.Many2many("perso.bank.account", string="Bank Account")
 
     @api.multi
     def open(self):
         context = { 'hide_empty_account' : True }
-        if self.bank_id:
-            context['bank_id'] = self.bank_id.name
+        if self.bank_ids:
+            context['bank_ids'] = self.bank_ids.ids
         if self.period_id:
             context['period_id'] = self.period_id.name
 

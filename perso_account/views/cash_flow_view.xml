@@ -52,6 +52,7 @@
                     domain="[('account_id', '=', False)]" />
                 <field name="name" />
                 <field name="account_id" />
+                <field name="amount"  />
                 <field name="bank_id" />
                 <field name="type" />
                 <field name="period_id" />

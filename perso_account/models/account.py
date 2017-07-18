@@ -6,12 +6,14 @@ from openerp.exceptions import ValidationError
     Configuration Model
 """
 class BankAccount(models.Model):
-    
+
     _name = "perso.bank.account"
-    
+    _order = "sequence asc"
+
     name = fields.Char("Number", required=True)
     description = fields.Char("Description")
-    
+    sequence = fields.Char()
+
     _sql_constraints = [
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
     ]
@@ -29,7 +31,13 @@ class BankAccount(models.Model):
         args = args or []
         domain = []
         if name:
-            domain = ['|', ('name', operator, name), ('description', operator, name)]
+            name_list = name.split('-')
+            name = name_list[-1].strip()
+            description = '-'.join(name_list[:-1]).strip()
+            if not description:
+                domain = ['|', ('name', operator, name), ('description', operator, name)]
+            else:
+                domain = [('name', operator, name), ('description', operator, description)]
         banks = self.search(domain + args, limit=limit)
         return banks.name_get()
 
@@ -92,8 +100,10 @@ class AccountPeriod(models.Model):
 class Account(models.Model):
 
     _name = "perso.account"
+    _oder = "number asc"
 
     name                = fields.Char("Name", required=True)
+    number              = fields.Char("Number", help="Allow to define your order")
     parent_id           = fields.Many2one("perso.account", string="Parent Account")
     child_ids           = fields.One2many("perso.account", "parent_id", string="Children account", readonly=True)
     cash_flow_ids       = fields.One2many('perso.account.cash_flow', 'account_id', string="Cash Flow")
@@ -120,7 +130,7 @@ class Account(models.Model):
                 result.extend(self._get_all_child(child, list(result)))
                 result.append(child.id)
             return list(set(result))
-        
+
     @api.multi
     def _get_amount(self):
         context = self.env.context
@@ -128,9 +138,11 @@ class Account(models.Model):
         bank_ids = False
         if context.get("period_id"):
             period_ids = self.env["perso.account.period"].search([('name', '=', context["period_id"])])
-        
         if context.get("bank_id"):
-            bank_ids = self.env["perso.bank.account"].search([('name', '=', context["bank_id"])])
+            bank_ids = self.env["perso.bank.account"].name_search(context["bank_id"])
+            bank_ids = self.env["perso.bank.account"].browse([b[0] for b in bank_ids])
+        if context.get("bank_ids"):
+            bank_ids = self.env["perso.bank.account"].browse(context.get("bank_ids"))
         #Compute ids needed for computation
         compute_ids = list(self.ids)
         for account in self:
@@ -151,7 +163,7 @@ class Account(models.Model):
         if period_ids:
             cash_flow_domain.append(("period_id", "=", period_ids[0].id))
         if bank_ids:
-            cash_flow_domain.append(("bank_id", "=", bank_ids[0].id))
+            cash_flow_domain.append(("bank_id", "in", bank_ids.ids))
         #Compute direct expense
         cash_flow_obj = self.env['perso.account.cash_flow']
         for cash_flow in cash_flow_obj.search(cash_flow_domain):

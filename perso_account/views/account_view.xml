@@ -6,7 +6,8 @@
         <field name="arch" type="xml">
             <tree string="Account"
                 colors="black:consolidated_budget == 0;red:consolidated_amount &lt; consolidated_budget;green:consolidated_amount &gt; consolidated_budget;">
-                <field name="id" />
+                <!-- <field name="id" /> -->
+                <field name="number" />
                 <field name="name" />
                 <field name="type" />
                 <field name="amount" sum="Total" />
@@ -23,6 +24,7 @@
         <field name="field_parent">child_ids</field>
         <field name="arch" type="xml">
             <tree string="Chart of account" toolbar="1">
+                <field name="number" />
                 <field name="name" />
                 <field name="parent_id" />
                 <field name="type" />
@@ -56,6 +58,7 @@
                 <sheet>
                     <group>
                         <field name="name" />
+                        <field name="number" />
                         <field name="type" />
                         <field name="parent_id" />
                         <field name="amount" />

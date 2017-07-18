@@ -5,6 +5,7 @@
         <field name="model">perso.bank.account</field>
         <field name="arch" type="xml">
             <tree string="Bank Account" editable="bottom">
+                <field name="sequence" />
                 <field name="name" />
                 <field name="description" />
             </tree>
