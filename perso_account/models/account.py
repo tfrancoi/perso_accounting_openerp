@@ -100,7 +100,7 @@ class AccountPeriod(models.Model):
 class Account(models.Model):
 
     _name = "perso.account"
-    _oder = "number asc"
+    _order = "number asc"
 
     name                = fields.Char("Name", required=True)
     number              = fields.Char("Number", help="Allow to define your order")
