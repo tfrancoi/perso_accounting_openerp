@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_perso_bank_mortgage_tree">
+        <field name="name">perso.bank.mortgage.tree</field>
+        <field name="model">perso.bank.mortgage</field>
+        <field name="arch" type="xml">
+            <tree string="Mortgage">
+                <field name="name" />
+                <field name="amount" sum="Total" />
+                <field name="rate" />
+                <field name="duration" />
+                <field name="monthly_payement" sum="Total" />
+                <field name="interest_paid" sum="Total" />
+                <field name="principal_paid" sum="Total" />
+                <field name="state" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_perso_bank_mortgage_form">
+        <field name="name">perso.bank.mortgage.form</field>
+        <field name="model">perso.bank.mortgage</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Compute" type="object" name="compute" attrs="{'invisible': [('state', '!=', 'draft')]}" />
+                    <button string="Clean Data" type="object" name="clean" attrs="{'invisible': [('state', '!=', 'draft')]}" />
+                    <button string="Confirm" type="object" name="confirm" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <group>
+                            <field name="amount" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="rate" digits="(8, 6)" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="duration" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <separator string="Current Status" colspan="2" />
+                            <field name="interest_paid" />
+                            <field name="principal_paid" />
+                        </group>
+                        <group>
+                            <field name="total_cost" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="monthly_rate" digits="(14, 12)" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="monthly_payement" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <separator string="Payement" colspan="2" attrs="{'invisible': [('state', '!=', 'valid')]}" />
+                            <field name="cash_flow_id" string="Last Payment Cash Flow"
+                                        domain="[('id', 'not in', used_cash_flow_ids[0][2])]"
+                                        attrs="{'invisible': [('state', '!=', 'valid')]}" />
+                            <button name="payment" type="object" string="Payment"  attrs="{'invisible': [('state', '!=', 'valid')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="draft" string="Mortgage Line" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                            <field name="draft_line_ids" options="{'no_create':True}">
+                                <tree editable="Top" >
+                                    <field name="period_nb" />
+                                    <field name="principal_paid" />
+                                    <field name="interest_paid" />
+                                    <field name="remaining_principal" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="confirmed" string="To Pay Mortgage Line" attrs="{'invisible': [('state', '!=', 'valid')]}">
+                            <field name="confirmed_line_ids" readonly="1">
+                                <tree>
+                                    <field name="period_nb" />
+                                    <field name="principal_paid" />
+                                    <field name="interest_paid" />
+                                    <field name="remaining_principal" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="paid" string="Paid Mortgage Line" attrs="{'invisible': [('state', 'not in', ('valid', 'done'))]}">
+                            <field name="paid_line_ids" readonly="1">
+                                <tree>
+                                    <field name="period_nb" />
+                                    <field name="principal_paid" />
+                                    <field name="interest_paid" />
+                                    <field name="remaining_principal" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="settings" string="Advanced settings">
+                            <group>
+                                <field name="target_principal_account" />
+                                <field name="target_interest_account"  />
+                                <field name="used_cash_flow_ids" invisible="1">
+                                    <tree></tree>
+                                </field>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <record model="ir.actions.act_window" id="mortgage_act_form">
+        <field name="name">Account</field>
+        <field name="res_model">perso.bank.mortgage</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+
+
+    <menuitem id="mortgage_menu" parent="perso_account.perso_account_root"
+        name="Mortgage" action="mortgage_act_form" />
+</odoo>
