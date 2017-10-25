@@ -63,7 +63,7 @@ class ImportFortis(models.TransientModel):
         for index, v in enumerate(record):
             if self._cash_flow_mapping.get(index):
                 new_key = self._cash_flow_mapping.get(index)
-                mapped_rec[new_key] = v.decode(self._encoding).encode('utf-8')
+                mapped_rec[new_key] = v.decode(self._encoding) #.encode('utf-8')
         return mapped_rec
 
     def _to_iso_date(self, orig_date):

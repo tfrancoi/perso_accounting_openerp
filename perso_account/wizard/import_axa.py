@@ -41,7 +41,9 @@ class ImportAxa(models.TransientModel):
         rec['bank_id'] = self.bank
         rec['name'] += '\n%s\n%s' % (rec['com1'], rec['com2'])
         rec['name'] = rec['name'].strip()
-        ref_hash = hashlib.sha1('%s%s%s' % (rec['amount'], rec['balance'], rec['name'])).hexdigest()[:4]
+        amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self._decimal_sep, '.'))
+        ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
+        ref_hash = hashlib.sha1(ref_str).hexdigest()[:4]
         rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)
         del rec['com1']; del rec['com2']; del rec['balance']
         return super(ImportAxa, self)._import_rec(rec)
