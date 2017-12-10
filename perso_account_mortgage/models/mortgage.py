@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api, _
-from openerp.exceptions import ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 from decimal import Decimal
 from odoo.tools import float_compare
 
@@ -88,7 +88,7 @@ class Mortgage(models.Model):
         self.ensure_one()
         C = Decimal(capital)
         lines = []
-        cost = 0.0
+        cost = Decimal('0.0')
         for i in xrange(1, duration + 1):
             interest = C * rate_month
             c_remb = price_month - interest

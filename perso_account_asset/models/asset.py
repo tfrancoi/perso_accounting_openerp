@@ -5,8 +5,8 @@ Created on 15 oct. 2016
 @author: mythrys
 '''
 
-from openerp import models, fields, api, _
-from openerp.exceptions import ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class AssetDocument(models.Model):
     _name = "perso.account.asset_document"

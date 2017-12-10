@@ -1,3 +1,3 @@
-import models
-import wizard
-import report
+from . import models
+from . import wizard
+from . import report

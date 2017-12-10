@@ -1,1 +1,1 @@
-import mortgage
+from . import mortgage

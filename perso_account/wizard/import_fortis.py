@@ -4,10 +4,10 @@
 
     @author: Thibault Francois
 '''
-from openerp import models, fields, api, _
-from openerp.exceptions import ValidationError
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 from base64 import b64decode
-from StringIO import StringIO
+from io import StringIO
 import csv
 import datetime
 
@@ -55,7 +55,7 @@ class ImportFortis(models.TransientModel):
     def _read_header(self, data):
         header = []
         while len(header) != self._header_length:
-            header = data.next()
+            header = next(data)
 
     #End of specific to import fortis
     def _map(self, record):
@@ -63,7 +63,7 @@ class ImportFortis(models.TransientModel):
         for index, v in enumerate(record):
             if self._cash_flow_mapping.get(index):
                 new_key = self._cash_flow_mapping.get(index)
-                mapped_rec[new_key] = v.decode(self._encoding) #.encode('utf-8')
+                mapped_rec[new_key] = v
         return mapped_rec
 
     def _to_iso_date(self, orig_date):
@@ -75,7 +75,7 @@ class ImportFortis(models.TransientModel):
     @api.multi
     def import_file(self):
         self.ensure_one()
-        csv_file = StringIO(b64decode(self.file_to_import))
+        csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
         data = csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
         #remove Header
         self._read_header(data)

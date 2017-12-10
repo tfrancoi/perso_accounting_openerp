@@ -18,24 +18,7 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="view_account_tree_tree">
-        <field name="name">perso.account.tree.tree</field>
-        <field name="model">perso.account</field>
-        <field name="field_parent">child_ids</field>
-        <field name="arch" type="xml">
-            <tree string="Chart of account" toolbar="1">
-                <field name="number" />
-                <field name="name" />
-                <field name="parent_id" />
-                <field name="type" />
-                <field name="amount" sum="Total" />
-                <field name="consolidated_amount" sum="Total" />
-                <field name="consolidated_budget" sum="Total Budget" />
-            </tree>
-        </field>
-    </record>
-
-    <record model="ir.ui.view" id="view_perso_account_search">
+   <record model="ir.ui.view" id="view_perso_account_search">
         <field name="name">perso.account.search</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">

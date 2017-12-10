@@ -6,7 +6,7 @@
 '''
 import base64
 import hashlib
-from openerp import models, fields
+from odoo import models, fields
 
 
 class ImportAxa(models.TransientModel):
@@ -43,13 +43,13 @@ class ImportAxa(models.TransientModel):
         rec['name'] = rec['name'].strip()
         amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self._decimal_sep, '.'))
         ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
-        ref_hash = hashlib.sha1(ref_str).hexdigest()[:4]
+        ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
         rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)
         del rec['com1']; del rec['com2']; del rec['balance']
         return super(ImportAxa, self)._import_rec(rec)
 
     def _read_header(self, data):
-        data.next() #remove first line
+        print(next(data)) #remove first line
         #second line contains the bank account number
-        self.bank = ''.join(data.next()[0].split(' ')[1:])
+        self.bank = ''.join(next(data)[0].split(' ')[1:])
         super(ImportAxa, self)._read_header(data)

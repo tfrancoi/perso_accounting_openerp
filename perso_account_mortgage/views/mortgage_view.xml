@@ -33,7 +33,7 @@
                         <field name="name" />
                         <group>
                             <field name="amount" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <field name="rate" digits="(8, 6)" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="rate"  attrs="{'readonly': [('state', '!=', 'draft')]}" />
                             <field name="duration" attrs="{'readonly': [('state', '!=', 'draft')]}" />
                             <separator string="Current Status" colspan="2" />
                             <field name="interest_paid" />
@@ -41,7 +41,7 @@
                         </group>
                         <group>
                             <field name="total_cost" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <field name="monthly_rate" digits="(14, 12)" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="monthly_rate"  attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                             <field name="monthly_payement" attrs="{'readonly': [('state', '!=', 'draft')]}" />
                             <separator string="Payement" colspan="2" attrs="{'invisible': [('state', '!=', 'valid')]}" />
                             <field name="cash_flow_id" string="Last Payment Cash Flow"

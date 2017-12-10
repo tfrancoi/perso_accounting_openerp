@@ -6,7 +6,7 @@
 '''
 import base64
 import hashlib
-from openerp import models, fields
+from odoo import models, fields
 
 
 class ImportKeytrade(models.TransientModel):

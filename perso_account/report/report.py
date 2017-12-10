@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from odoo import models, fields, api
+from odoo.tools import topological_sort
+
 import logging
-from openerp.tools import topological_sort
 
 _logger = logging.getLogger(__name__)
 

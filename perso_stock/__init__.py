@@ -1,2 +1,2 @@
-import product
-import stock
+from . import product
+from . import stock

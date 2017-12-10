@@ -4,7 +4,7 @@
 
     @author: Thibault Francois
 '''
-from openerp import fields, models
+from odoo import fields, models
 
 class DistributionTemplate(models.Model):
 

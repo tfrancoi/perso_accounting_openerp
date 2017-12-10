@@ -4,10 +4,10 @@
 
     @author: Thibault Francois
 '''
-from openerp import api, fields, models, _
-from openerp.exceptions import UserError
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 from base64 import b64decode
-from StringIO import StringIO
+from io import StringIO
 import csv
 import sys
 import datetime
@@ -170,6 +170,7 @@ class LoadDetailsFortis(models.TransientModel):
     _decimal_sep = ","
     _csv_delimiter = ";"
     _csv_quote = '"'
+    _encoding = 'iso-8859-1'
 
     _header = ['Date d\'exécution', 'Date valeur', 'Montant','Devise du compte','Détails', 'Taux de change','Coût associé']
 
@@ -179,7 +180,7 @@ class LoadDetailsFortis(models.TransientModel):
 
     def _load_details(self, data_file):
         try:
-            csv_file = StringIO(data_file)
+            csv_file = StringIO(data_file.decode(self._encoding))
             data = csv.reader(csv_file, delimiter=self._csv_delimiter)
             header = data.next()
             if not len(header) == 7:

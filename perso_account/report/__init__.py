@@ -1,2 +1,1 @@
-import report
-import load_chart_of_account
+from . import report
