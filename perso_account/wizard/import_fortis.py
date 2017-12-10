@@ -21,8 +21,8 @@ class ImportFortis(models.TransientModel):
     
     _date_format = "%d/%m/%Y"
     
-    _thousand_sep = "."
-    _decimal_sep = ","
+    _thousand_sep = ","
+    _decimal_sep = "."
     _csv_delimiter = ";"
     _csv_quote = '"'
     _header_length = 8
