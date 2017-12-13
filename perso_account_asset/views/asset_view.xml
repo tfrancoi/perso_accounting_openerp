@@ -34,8 +34,15 @@
                         <tree editable="bottom">
                             <field name="name" />
                             <field name="fname" invisible="1" />
-                            <field name="data" filename="fname" />
+                            <field name="data" filename="fname" widget="binary"/>
                         </tree>
+                        <form>
+                            <group>
+                                <field name="name" />
+                                <field name="fname" invisible="1" />
+                                <field name="data" filename="fname" />
+                            </group>
+                        </form>
                     </field>
                 </sheet>
             </form>
