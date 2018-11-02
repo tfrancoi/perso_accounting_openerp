@@ -50,13 +50,30 @@
             <search string="Cash Flow">
                 <filter name="todo" string="TODO"
                     domain="[('account_id', '=', False)]" />
+                <filter string="This Year" name="current_year"
+                    domain="[('value_date', '&gt;=', context_today().strftime('%Y-01-01')),('value_date', '&lt;=', context_today().strftime('%Y-12-31'))]"/>
                 <field name="name" />
                 <field name="account_id" />
                 <field name="amount"  />
                 <field name="bank_id" />
                 <field name="type" />
                 <field name="period_id" />
+                <filter name="group_by_bank" context="{'group_by' : 'bank_id'}" string="Bank" />
+                <filter name="group_by_account" context="{'group_by' : 'account_id'}" string="Account" />
+                <filter name="group_by_value_date" context="{'group_by': 'value_date:month'}" string="Value Date" />
             </search>
+        </field>
+    </record>
+
+    <record id="view_perso_account_cash_flow_pivot" model="ir.ui.view">
+        <field name="name">perso.account.cash_flow.pivot</field>
+        <field name="model">perso.account.cash_flow</field>
+        <field name="type">pivot</field>
+        <field name="arch" type="xml">
+            <pivot string="Cash Flow">
+                <field name="value_date" interval="month" type="col"/>
+                <field name="amount" type="measure"/>
+            </pivot>
         </field>
     </record>
 
@@ -71,19 +88,6 @@
             </graph>
         </field>
     </record>
-
-    <record model="ir.ui.view" id="view_perso_account_cash_flow_pivot">
-        <field name="name">perso.account.cash_flow.pivot</field>
-        <field name="model">perso.account.cash_flow</field>
-        <field name="type">graph</field>
-        <field name="arch" type="xml">
-            <pivot string="Account Graph">
-                <field name="account_id" group="True" />
-                <field name="amount" operator="+" />
-            </pivot>
-        </field>
-    </record>
-
 
     <record model="ir.actions.act_window" id="cash_flow_act_form">
         <field name="name">Cash Flow</field>
