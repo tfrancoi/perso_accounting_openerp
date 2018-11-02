@@ -260,7 +260,7 @@ class CashFlow(models.Model):
                 cash.period_id = period
 
     def _search_period(self, operator, period_id):
-        if isinstance(period_id, basestring):
+        if isinstance(period_id, str):
             period = self.env["perso.account.period"].search([('name', operator, period_id)])
         else:
             period = self.env["perso.account.period"].browse([period_id])
@@ -268,7 +268,7 @@ class CashFlow(models.Model):
         domain = []
         for p in period:
             domain.extend(['&', ("value_date", ">=", p.date_start), ("value_date", "<=", p.date_end)])
-        domain = ['|'] * (len(domain) / 3 - 1 ) + domain
+        domain = ['|'] * int((len(domain) / 3 - 1 )) + domain
 
         return [('id', 'in', self.search(domain).ids)]
 
