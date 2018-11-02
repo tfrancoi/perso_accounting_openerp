@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 class PeriodReport(models.TransientModel):
 
     _name = "perso.account.period.report"
+    _description = 'Report Remaining Amount Wizard'
 
     name            = fields.Char('Cash Flow Name Template', required=True)
     bank_id         = fields.Many2one('perso.bank.account', required=True)

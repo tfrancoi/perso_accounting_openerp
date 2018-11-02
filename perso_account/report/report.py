@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class AccountReportLine(models.Model):
     _name = "perso.account.report_line"
-
+    _description = "Perso Account Report Line"
     _order = 'period_id asc' 
 
 

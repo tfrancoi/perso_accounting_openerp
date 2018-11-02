@@ -13,6 +13,7 @@ class ImportAxa(models.TransientModel):
 
     _inherit = "perso.account.import_fortis"
     _name = "perso.account.import_axa"
+    _description = 'Import File from Axa'
 
     name = fields.Char(default="Import CSV exported from Axa")
     bank = fields.Char()

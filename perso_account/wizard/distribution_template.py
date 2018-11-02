@@ -9,6 +9,7 @@ from odoo import fields, models
 class DistributionTemplate(models.Model):
 
     _name = "perso.account.distribution_template"
+    _description = "Cash flow Distribution Template"
 
     name     = fields.Char("Name")
     line_ids = fields.One2many("perso.account.distribution_template.line", "template_id", string="Ventilation Lines")
@@ -17,6 +18,7 @@ class DistributionTemplate(models.Model):
 class DistributionTemplateLine(models.Model):
 
     _name = "perso.account.distribution_template.line"
+    _description = "Cash flow Distribution Template Line"
 
     name        = fields.Char("Description", required=True)
     amount      = fields.Float("Amount", required=True)

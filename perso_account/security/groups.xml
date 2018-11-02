@@ -1,0 +1,6 @@
+<odoo>
+    <record model="res.groups" id="manager_group">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="base.module_category_perso_account" />
+    </record>
+</odoo>

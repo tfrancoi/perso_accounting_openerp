@@ -15,6 +15,7 @@ import datetime
 class ImportFortis(models.TransientModel):
     
     _name = "perso.account.import_fortis"
+    _description = 'Import File from Fortis'
     
     name = fields.Char(string="Name", default="Import CSV exported from BNP Paribas Fortis")
     file_to_import = fields.Binary(string="Fortis Export CSV", required=True)

@@ -1,0 +1,3 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+Perso_Assets_All,Perso Assets All,perso_account_asset.model_perso_account_asset,perso_account.manager_group,1,1,1,1
+Perso_Assets_Document_All,Perso Assets Document All,perso_account_asset.model_perso_account_asset_document,perso_account.manager_group,1,1,1,1

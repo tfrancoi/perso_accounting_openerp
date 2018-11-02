@@ -16,8 +16,8 @@ migrator = Migrator(CONNECTION_FILE_OUT, CONNECTION_FILE_IN)
 migrator.export_batch_size = 400
 migrator.migrate('perso.account.period_type', [], ['id', 'name'])
 
-migrator.migrate('perso.account.period', [('active', 'in', [True, False])], ['id', 'name', 'type_id/id', 'date_start', 'date_end', 'active', 'previous_period_id/id'])
-migrator.migrate('perso.account.period', [('active', 'in', [True, False]), ('previous_period_id', '!=', False)], ['id', 'previous_period_id/id'])
+migrator.migrate('perso.account.period', [('active', 'in', [True, False])], ['id', 'name', 'type_id/id', 'date_start', 'date_end', 'active', 'previous_period_id/id'], debug=False)
+migrator.migrate('perso.account.period', [('active', 'in', [True, False]), ('previous_period_id', '!=', False)], ['id', 'previous_period_id/id'], debug=False)
 
 migrator.migrate('perso.bank.account', [], ['id', 'name', 'description', 'sequence'])
 
@@ -26,6 +26,7 @@ migrator.migrate('perso.account', [('parent_id', '!=', False)], ['id', 'parent_i
 
 migrator.migrate('perso.account.consolidation', [], ['id', 'name', 'description', 'account_ids/id'])
 
+migrator.import_batch_size = 100
 migrator.migrate('perso.account.cash_flow', [], ['id', 'reference', 'name', 'account_id/id', 'bank_id/id',
                                                  'value_date', 'transaction_date', 'amount', 'distributed'])
 

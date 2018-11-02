@@ -28,6 +28,8 @@
     'depends': ['base'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
     'data': [
+        'security/groups.xml',
+        'security/ir.model.access.csv',
         'views/account_view.xml',
         'views/cash_flow_view.xml',
         'views/consolidation_account_view.xml',

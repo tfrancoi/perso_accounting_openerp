@@ -13,6 +13,7 @@ class ImportKeytrade(models.TransientModel):
 
     _inherit = "perso.account.import_fortis"
     _name = "perso.account.import_keytrade"
+    _description = 'Import File from Keytrade'
 
     name = fields.Char(default="Import CSV exported from Keytrade")
     bank_id = fields.Many2one('perso.bank.account')

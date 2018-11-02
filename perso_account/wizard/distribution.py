@@ -19,6 +19,7 @@ _logger = logging.getLogger(__name__)
 class Distribution(models.TransientModel):
 
     _name = "perso.account.distribution"
+    _description = "Wizard for Cash Flow Distribution"
 
     name                  = fields.Char("Name", default="Distribution")
     cash_flow_id          = fields.Many2one("perso.account.cash_flow", string="Cash flow to ventilate", required=True)
@@ -139,6 +140,7 @@ class Distribution(models.TransientModel):
 
 class ventilation_line(models.TransientModel):
     _name = "perso.account.distribution.line"
+    _description = "Cash Flow Distribution Line"
     #TODO add transaction date
 
     name       = fields.Char("Description", required=True)
@@ -149,6 +151,7 @@ class ventilation_line(models.TransientModel):
 
 class LoadDetails(models.TransientModel):
     _name = "perso.account.load_details"
+    _description = 'Distribution Load Details Abstract'
 
     def _load_details(self, data_file):
         """
@@ -164,6 +167,7 @@ class LoadDetails(models.TransientModel):
 
 class LoadDetailsFortis(models.TransientModel):
     _inherit = "perso.account.load_details"
+    _description = 'Distribution Load Details Fortis'
 
     _date_format = "%d/%m/%Y"
 

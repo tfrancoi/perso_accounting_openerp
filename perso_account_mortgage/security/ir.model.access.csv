@@ -1,0 +1,3 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+Mortgage_All,Mortgage All,perso_account_mortgage.model_perso_bank_mortgage,perso_account.manager_group,1,1,1,1
+Mortgage_Line_All,Mortgage Line All,perso_account_mortgage.model_perso_bank_mortgage_line,perso_account.manager_group,1,1,1,1

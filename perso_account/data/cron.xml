@@ -6,7 +6,7 @@
         <field name="interval_type">minutes</field>
         <field name="numbercall">-1</field>
         <field name="model_id" ref="perso_account.model_perso_account_report_line" />
-        <field name="function">_generate_line</field>
-        <field name="args">()</field>
+        <field name="state">code</field>
+        <field name="code">model._generate_line()</field>
     </record>
 </odoo>

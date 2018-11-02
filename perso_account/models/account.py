@@ -8,11 +8,12 @@ from odoo.exceptions import ValidationError
 class BankAccount(models.Model):
 
     _name = "perso.bank.account"
+    _description = "Bank Account"
     _order = "sequence asc"
 
-    name = fields.Char("Number", required=True)
+    name        = fields.Char("Number", required=True)
     description = fields.Char("Description")
-    sequence = fields.Char()
+    sequence    = fields.Char()
 
     _sql_constraints = [
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
@@ -44,22 +45,24 @@ class BankAccount(models.Model):
 class AccountPeriodType(models.Model):
 
     _name = 'perso.account.period_type'
+    _description = 'Type of Period'
 
     name = fields.Char()
 
 class AccountPeriod(models.Model):
 
     _name = 'perso.account.period'
+    _description = 'Period'
     
     _order = 'date_start asc'
 
-    name = fields.Char("Name")
-    date_start = fields.Date("Date Start")
-    date_end = fields.Date("Date End")
-    active = fields.Boolean("Active", default=True)
+    name               = fields.Char("Name")
+    date_start         = fields.Date("Date Start")
+    date_end           = fields.Date("Date End")
+    active             = fields.Boolean("Active", default=True)
     previous_period_id = fields.Many2one('perso.account.period')
-    line_ids = fields.One2many('perso.account.report_line', 'period_id')
-    type_id = fields.Many2one('perso.account.period_type')
+    line_ids           = fields.One2many('perso.account.report_line', 'period_id')
+    type_id            = fields.Many2one('perso.account.period_type')
 
 
     def _get_previous_line(self):
@@ -100,6 +103,7 @@ class AccountPeriod(models.Model):
 class Account(models.Model):
 
     _name = "perso.account"
+    _description = 'Classification Account'
     _order = "number asc"
 
     name                = fields.Char("Name", required=True)
@@ -202,6 +206,7 @@ class Account(models.Model):
 class ConsolidationAccount(models.Model):
     
     _name = "perso.account.consolidation"
+    _description = 'Consolidation Account'
     
     name                = fields.Char("Name")
     description         = fields.Text("Description")
@@ -226,6 +231,7 @@ class ConsolidationAccount(models.Model):
 class CashFlow(models.Model):
     
     _name = "perso.account.cash_flow"
+    _description = 'Cash Flow'
 
     reference           = fields.Char("Reference", copy=False)
     name                = fields.Text("Description")

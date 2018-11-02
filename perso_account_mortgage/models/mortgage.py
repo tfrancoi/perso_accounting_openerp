@@ -9,6 +9,7 @@ from odoo.tools import float_compare
 class Mortgage(models.Model):
 
     _name = "perso.bank.mortgage"
+    _description = "Mortgage"
 
     name = fields.Char("Name", required=True)
     rate = fields.Float(required=True, digits=(8, 6))
@@ -139,6 +140,7 @@ class Mortgage(models.Model):
 class MortgageLine(models.Model):
 
     _name = "perso.bank.mortgage.line"
+    _description = "Mortgage Line"
 
     _rec_name = 'mortgage_id'
 

@@ -10,6 +10,7 @@ from odoo.exceptions import ValidationError
 
 class AssetDocument(models.Model):
     _name = "perso.account.asset_document"
+    _description = "Perso Assets Document"
 
     name = fields.Char("Document Reason")
     fname = fields.Char("Filename")
@@ -18,6 +19,7 @@ class AssetDocument(models.Model):
 
 class Asset(models.Model):
     _name = "perso.account.asset"
+    _description = "Perso Assets"
 
     name = fields.Char(required=True)
     cash_flow_id = fields.Many2one('perso.account.cash_flow', string="Move")

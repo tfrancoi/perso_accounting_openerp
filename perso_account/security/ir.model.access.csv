@@ -1,0 +1,10 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+Bank_Account_All,Bank Account All,perso_account.model_perso_bank_account,perso_account.manager_group,1,1,1,1
+Type_of_Period_All,Type of Period All,perso_account.model_perso_account_period_type,perso_account.manager_group,1,1,1,1
+Period_All,Period All,perso_account.model_perso_account_period,perso_account.manager_group,1,1,1,1
+Classification_Account_All,Classification Account All,perso_account.model_perso_account,perso_account.manager_group,1,1,1,1
+Consolidation_Account_All,Consolidation Account All,perso_account.model_perso_account_consolidation,perso_account.manager_group,1,1,1,1
+Cash_Flow_All,Cash Flow All,perso_account.model_perso_account_cash_flow,perso_account.manager_group,1,1,1,1
+Cash_flow_Distribution_Template_All,Cash flow Distribution Template All,perso_account.model_perso_account_distribution_template,perso_account.manager_group,1,1,1,1
+Cash_flow_Distribution_Template_Line_All,Cash flow Distribution Template Line All,perso_account.model_perso_account_distribution_template_line,perso_account.manager_group,1,1,1,1
+Perso_Account_Report_Line_All,Perso Account Report Line All,perso_account.model_perso_account_report_line,perso_account.manager_group,1,1,1,1
