@@ -67,6 +67,8 @@ class ImportFortis(models.TransientModel):
         return mapped_rec
 
     def _to_iso_date(self, orig_date):
+        if not orig_date:
+            return fields.Date.today()
         date_obj = datetime.datetime.strptime(orig_date, self._date_format)
         return date_obj.strftime('%Y-%m-%d')
 
