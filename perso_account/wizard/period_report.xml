@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="wizard_report">
+        <field name="name">perso.account.period.report.view</field>
+        <field name="model">perso.account.period.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="bank_id" />
+                        <field name="period_id" />
+                        <field name="account_id" />
+                    </group>
+                    <group>
+                        <field name="name" />
+                        <field name="next_period_id" />
+                        <field name="reported_amount" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="confirm" string="Confirm" type="object" />
+                    or
+                    <button string="Cancel" special="cancel" />
+
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="period_report_action">
+        <field name="name">Period Report</field>
+        <field name="res_model">perso.account.period.report</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+
+    <menuitem id="period_report_menu" parent="perso_account_tools"
+        name="Period Report" action="period_report_action" sequence="5"/>
+
+
+</odoo>
