@@ -273,7 +273,7 @@ class Account(models.Model):
                 'amount': round(rec.amount, 2),
                 'consolidated_amount': round(rec.consolidated_amount, 2),
                 'budget': rec.budget,
-                'consolidated_budget': rec.consolidated_budget,
+                'consolidated_budget': round(rec.consolidated_budget, 2),
                 'children': [get_child_info(c) for c in rec.child_ids],
             }
 
