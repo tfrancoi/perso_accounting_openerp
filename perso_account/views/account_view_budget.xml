@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.ui.view" id="view_perso_account_tree">
+
+    <template id="assets_backend" name="account assets" inherit_id="web.assets_backend">
+        <xpath expr="." position="inside">
+            <!-- <link rel="stylesheet" href="/account/static/src/css/account_bank_and_cash.css"/> -->
+
+            <script type="text/javascript" src="/perso_account/static/src/js/account_structure.js"/>
+        </xpath>
+    </template>
+    <record model="ir.ui.view" id="view_perso_account_budget_tree">
         <field name="name">perso.account.tree</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">
@@ -9,15 +17,17 @@
                 <!-- <field name="id" /> -->
                 <field name="number" />
                 <field name="name" />
-                <field name="type" />
-                <field name="amount" sum="Total" />
+                <field name="consolidated_budget" />
+                <field name="budget" sum="Total"/>
                 <field name="consolidated_amount" sum="Total" />
+                <field name="previous_consolidated_amount" sum="Total" />
+                <field name="past_year_mean_consolidated_amount" sum="Total" />
                 <field name="parent_id" />
             </tree>
         </field>
     </record>
 
-   <record model="ir.ui.view" id="view_perso_account_search">
+   <record model="ir.ui.view" id="view_perso_account_budget_search">
         <field name="name">perso.account.search</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">
@@ -28,13 +38,15 @@
                 <field name="description" />
                 <field name="period_id" context="{'period_id' : self}" />
                 <field name="bank_id" context="{'bank_id' : self}" />
+                <filter name="current_period" context="{'period_id': 'current'}" string="Current Period" />
             </search>
         </field>
     </record>
 
-    <record model="ir.ui.view" id="view_perso_account_form">
+    <record model="ir.ui.view" id="view_perso_account_budget_form">
         <field name="name">perso.account.form</field>
         <field name="model">perso.account</field>
+        <field name="priority">99</field>
         <field name="arch" type="xml">
             <form string="Account" version="7.0">
                 <sheet>
@@ -50,7 +62,7 @@
                     </group>
                     <notebook>
                         <page string="Child Account">
-                            <field name="child_ids" />
+                            <field name="child_ids" context="{'tree_view_ref': 'perso_account.view_perso_account_budget_tree'}"/>
                         </page>
                         <page string="Cash Flows">
                             <field name="cash_flow_ids">
@@ -74,21 +86,39 @@
 
 
 
-    <record model="ir.actions.act_window" id="account_act_form">
+    <record model="ir.actions.act_window" id="account_budget_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.account</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="view_id" ref="view_perso_account_tree" />
+        <field name="search_view_id" ref="view_perso_account_budget_search" />
+        <field name="domain">[('is_budget', '=', True)]</field>
+        <field name="context">{'default_is_budget': True, 'search_default_current_period': 1}</field>
     </record>
 
+    <record id="budget_view_tree" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">tree</field>
+        <field name="act_window_id" ref="account_budget_act_form"/>
+        <field name="view_id" ref="view_perso_account_budget_tree"/>
+    </record>
 
+    <record id="budget_view_form" model="ir.actions.act_window.view">
+        <field name="sequence">10</field>
+        <field name="view_mode">form</field>
+        <field name="act_window_id" ref="account_budget_act_form"/>
+        <field name="view_id" ref="view_perso_account_budget_form"/>
+    </record>
 
-    <menuitem id="perso_account_top" name="Personnal Accounting"
-        web_icon="perso_account,static/description/icon.png" />
+    <menuitem id="perso_account_budget_root" parent="perso_account_top"
+        name="Budget" />
+    <menuitem id="perso_account_account_budget" parent="perso_account_budget_root"
+        name="Account" action="account_budget_act_form" />
 
-    <menuitem id="perso_account_root" parent="perso_account_top"
-        name="Personnal Accounting" />
-    <menuitem id="perso_account_account" parent="perso_account_root"
-        name="Account" action="account_act_form" />
+    <record id="action_account_structure" model="ir.actions.client">
+            <field name="name">Account Structure</field>
+            <field name="tag">account_structure</field>
+    </record>
+
+    <menuitem id="menu_account_structure" parent="perso_account_budget_root" action="action_account_structure" sequence="25"/>
 </odoo>

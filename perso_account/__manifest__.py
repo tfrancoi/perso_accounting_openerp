@@ -31,6 +31,7 @@
         'security/groups.xml',
         'security/ir.model.access.csv',
         'views/account_view.xml',
+        'views/account_view_budget.xml',
         'views/cash_flow_view.xml',
         'views/consolidation_account_view.xml',
         'views/period_view.xml',
@@ -45,7 +46,9 @@
     ],
     'installable': True,
     'application': True,
-    'active': False,
+    'qweb': [
+        'static/src/xml/template.xml',
+    ],
 }
 
 #TODO

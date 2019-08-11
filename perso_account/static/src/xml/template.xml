@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="account.structure">
+        <div>
+            <t t-set="children" t-value="widget.structure" />
+            <t t-set="level" t-value="0" />
+            <t t-set="id" t-value="0" />
+            <div class="table-responsive">
+                <table class="o_list_view table table-sm table-hover table-striped o_list_view_ungrouped">
+                    <thead>
+                        <tr>
+                            <th class="o_column_sortable">
+                                Account
+                            </th>
+                            <th class="o_list_number_th">
+                                Consolidated Budget
+                            </th>
+                            <th class="o_list_number_th">
+                                Consolidated Amount
+                            </th>
+                            <th class="o_list_number_th">
+                                Amount
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-call="account.child" />
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="account.child">
+        <t t-set="current_level" t-value="level" />
+        <t t-set="current_id" t-value="id" />
+        <t t-foreach="children" t-as="account">
+                <tr t-att-class="'o_data_row childof'+current_id + (current_level and ' collapse' or '')" >
+                    <td class="o_data_cell" t-att-id="'childof' + account.id">
+                        <span>
+                            <t t-foreach="current_level" t-as="i">
+                                &#160;&#160;&#160;&#160;&#160;&#160;
+                            </t>
+                            <t t-if="account.children.length > 0">
+                                <span class="fa fa-caret-right" />
+                            </t>
+                            <t t-else="">
+                                <span style="font-size:0.5em;">&#160;&#160;&#160;</span>
+                            </t>
+                            <t t-esc="account.number" /> - <t t-esc="account.name" />
+                        </span>
+                    </td>
+                    <td class="o_data_cell o_list_number">
+                        <t t-esc="account.consolidated_budget" />
+                    </td>
+                    <td class="o_data_cell o_list_number">
+                        <t t-esc="account.amount" />
+                    </td>
+                    <td class="o_data_cell o_list_number">
+                        <t t-esc="account.consolidated_amount" />
+                    </td>
+                </tr>
+            <t t-set="children" t-value="account.children" />
+            <t t-set="level" t-value="current_level + 1" />
+            <t t-set="id" t-value="account.id" />
+            <t t-call="account.child" />
+        </t>
+    </t>
+
+</templates>

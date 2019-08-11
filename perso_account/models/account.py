@@ -124,6 +124,12 @@ class Account(models.Model):
     bank_id             = fields.Many2one("perso.bank.account", compute="_get_dummy", string="Bank Account")
     budget              = fields.Float("Account budget")
     consolidated_budget = fields.Float(compute="_get_amount", string="Consolidated Budget", readonly=True)
+    is_budget           = fields.Boolean("Is Budget Account", default=False)
+
+    previous_amount                    = fields.Float(compute="_get_amount", string="Last Period Amount", readonly=True)
+    previous_consolidated_amount       = fields.Float(compute="_get_amount", string="Last Period Amount Consolidated", readonly=True)
+    past_year_mean_amount              = fields.Float(compute="_get_amount", string="Past Year Mean Amount", readonly=True)
+    past_year_mean_consolidated_amount = fields.Float(compute="_get_amount", string="Past Year Mean Consolidated Amount", readonly=True)
 
     @api.multi
     def _get_all_child(self, account, result):
@@ -135,23 +141,56 @@ class Account(models.Model):
                 result.append(child.id)
             return list(set(result))
 
+    def _get_cash_domain(self, account_ids, period_ids, bank_ids):
+        cash_flow_domain = [('account_id', 'in', account_ids)]
+        if period_ids:
+            cash_flow_domain.append(("period_id", "in", period_ids.ids))
+        if bank_ids:
+            cash_flow_domain.append(("bank_id", "in", bank_ids.ids))
+        return cash_flow_domain
+
+    def _get_period(self):
+        """
+            Return the search period
+            Return the previous period
+            Return the last 12 periods
+        """
+        if not self._context.get("period_id"):
+            return False, False, False
+
+        period = self.env["perso.account.period"]
+        if self._context["period_id"] == "current":
+            today = fields.Date.today()
+            period_ids = period.search([('date_start', '<=', today), ('date_end', '>=', today)], limit=1, order="date_start desc")
+        else:
+            period_ids = period.search([('name', '=', self._context["period_id"])])
+
+        if not len(period_ids) == 1:
+            return period_ids, False, False
+
+        past_year = period.search([('type_id', '=', period_ids.type_id.id), ('date_end', '<', period_ids.date_start)], limit=12, order="date_start desc")
+        return period_ids, period_ids.previous_period_id, past_year
+
+    def _get_bank(self):
+        bank_ids = False
+        if self._context.get("bank_id"):
+            bank_ids = self.env["perso.bank.account"].name_search(self._context["bank_id"])
+            bank_ids = self.env["perso.bank.account"].browse([b[0] for b in bank_ids])
+        if self._context.get("bank_ids"):
+            bank_ids = self.env["perso.bank.account"].browse(self._context.get("bank_ids"))
+
+        return bank_ids
+
     @api.multi
     def _get_amount(self):
-        context = self.env.context
-        period_ids = False
-        bank_ids = False
-        if context.get("period_id"):
-            period_ids = self.env["perso.account.period"].search([('name', '=', context["period_id"])])
-        if context.get("bank_id"):
-            bank_ids = self.env["perso.bank.account"].name_search(context["bank_id"])
-            bank_ids = self.env["perso.bank.account"].browse([b[0] for b in bank_ids])
-        if context.get("bank_ids"):
-            bank_ids = self.env["perso.bank.account"].browse(context.get("bank_ids"))
+        cash_flow_obj = self.env['perso.account.cash_flow']
+        bank_ids = self._get_bank()
+        period_ids, previous_period_id, past_year_ids = self._get_period()
+
         #Compute ids needed for computation
         compute_ids = list(self.ids)
         for account in self:
             compute_ids.extend(self._get_all_child(account, []))
-            
         compute_ids = list(set(compute_ids))
             
         parent_per_child = {}
@@ -159,37 +198,57 @@ class Account(models.Model):
         for account in self.browse(compute_ids):
             parent_per_child[account.id] = account.parent_id.id
             budget_per_account[account.id] = account.budget
-        #Init Value
+        #Compute direct expense
         amount = dict.fromkeys(compute_ids, 0.0)
         consolidated_amount = dict.fromkeys(compute_ids, 0.0)
-        consolidated_budget = dict.fromkeys(compute_ids, 0.0)
-        cash_flow_domain = [('account_id', 'in', compute_ids)]
-        if period_ids:
-            cash_flow_domain.append(("period_id", "=", period_ids[0].id))
-        if bank_ids:
-            cash_flow_domain.append(("bank_id", "in", bank_ids.ids))
-        #Compute direct expense
-        cash_flow_obj = self.env['perso.account.cash_flow']
+        cash_flow_domain = self._get_cash_domain(compute_ids, period_ids, bank_ids)
         for cash_flow in cash_flow_obj.search(cash_flow_domain):
             amount[cash_flow.account_id.id] += cash_flow.amount
+
+        last_month_amount = dict.fromkeys(compute_ids, 0.0)
+        last_month_consolidated_amount = dict.fromkeys(compute_ids, 0.0)
+        if previous_period_id:
+            previous_cash_flow_domain = self._get_cash_domain(compute_ids, previous_period_id, bank_ids)
+            for cash_flow in cash_flow_obj.search(previous_cash_flow_domain):
+                last_month_amount[cash_flow.account_id.id] += cash_flow.amount
+
+        past_year_amount = dict.fromkeys(compute_ids, 0.0)
+        past_year_consolidated_amount = dict.fromkeys(compute_ids, 0.0)
+        if past_year_ids:
+            past_year_cash_flow_domain = self._get_cash_domain(compute_ids, past_year_ids, bank_ids)
+            for cash_flow in cash_flow_obj.search(past_year_cash_flow_domain):
+                past_year_amount[cash_flow.account_id.id] += cash_flow.amount
         
+        consolidated_budget = dict.fromkeys(compute_ids, 0.0)
+
         for account_id in compute_ids:
             account_amount = amount[account_id]
-            budget_amount = budget_per_account[account_id]
             consolidated_amount[account_id] += account_amount
-            consolidated_budget[account_id] += budget_amount
+            budget = budget_per_account[account_id]
+            consolidated_budget[account_id] += budget
+            amount_last_month = last_month_amount[account_id]
+            last_month_consolidated_amount[account_id] += amount_last_month
+            amount_past_year = past_year_amount[account_id]
+            past_year_consolidated_amount[account_id] += amount_past_year
             while parent_per_child.get(account_id, False):
                 parent_id = parent_per_child[account_id]
                 if parent_id in compute_ids:
+                    consolidated_budget[parent_id] += budget
                     consolidated_amount[parent_id] += account_amount
-                    consolidated_budget[parent_id] += budget_amount
+                    last_month_consolidated_amount[parent_id] += amount_last_month
+                    past_year_consolidated_amount[parent_id] += amount_past_year
                 account_id = parent_id
             
+
         #Rearrange result    
         for account in self:
+            account.consolidated_budget = consolidated_budget[account.id]
             account.amount = amount[account.id]
             account.consolidated_amount = consolidated_amount[account.id]
-            account.consolidated_budget = consolidated_budget[account.id]
+            account.previous_amount = last_month_amount[account.id]
+            account.previous_consolidated_amount = last_month_consolidated_amount[account.id]
+            account.past_year_mean_amount = past_year_amount[account.id] / len(past_year_ids or [1])
+            account.past_year_mean_consolidated_amount = past_year_consolidated_amount[account.id] / len(past_year_ids or [1])
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -202,6 +261,27 @@ class Account(models.Model):
     def _get_dummy(self):
         self.period_id = False
         self.bank_id = False
+
+
+    @api.model
+    def get_structure(self):
+        def get_child_info(rec):
+            return {
+                'id': rec.id,
+                'number': rec.number,
+                'name': rec.name,
+                'amount': round(rec.amount, 2),
+                'consolidated_amount': round(rec.consolidated_amount, 2),
+                'budget': rec.budget,
+                'consolidated_budget': rec.consolidated_budget,
+                'children': [get_child_info(c) for c in rec.child_ids],
+            }
+
+        roots = self.with_context(period_id='current').search([('parent_id', '=', False)])
+        roots_data = []
+        for root in roots:
+            roots_data.append(get_child_info(root))
+        return roots_data
 
 class ConsolidationAccount(models.Model):
     
@@ -268,6 +348,8 @@ class CashFlow(models.Model):
     def _search_period(self, operator, period_id):
         if isinstance(period_id, str):
             period = self.env["perso.account.period"].search([('name', operator, period_id)])
+        elif isinstance(period_id, list):
+            period = self.env["perso.account.period"].browse(period_id)
         else:
             period = self.env["perso.account.period"].browse([period_id])
 
