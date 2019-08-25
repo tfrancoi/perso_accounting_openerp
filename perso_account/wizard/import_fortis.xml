@@ -10,6 +10,7 @@
                 	 <h1><field name="name" readonly="1" /></h1>
                 	</div>
                 	<group>
+                        <field name="decimal_separator" />
 	                	<field name="file_to_import" string="Select file to import"/>
                 	
                 	</group>

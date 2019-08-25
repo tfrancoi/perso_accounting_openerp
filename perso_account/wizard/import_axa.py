@@ -17,11 +17,10 @@ class ImportAxa(models.TransientModel):
 
     name = fields.Char(default="Import CSV exported from Axa")
     bank = fields.Char()
+    decimal_separator = fields.Selection(default=',')
 
     _date_format = "%Y-%m-%d"
 
-    _thousand_sep = "."
-    _decimal_sep = ","
     _csv_delimiter = ";"
     _csv_quote = '"'
     _header_length = 15
@@ -42,7 +41,7 @@ class ImportAxa(models.TransientModel):
         rec['bank_id'] = self.bank
         rec['name'] += '\n%s\n%s' % (rec['com1'], rec['com2'])
         rec['name'] = rec['name'].strip()
-        amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self._decimal_sep, '.'))
+        amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self.decimal_separator, '.'))
         ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
         ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
         rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)

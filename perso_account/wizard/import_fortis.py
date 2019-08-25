@@ -19,11 +19,10 @@ class ImportFortis(models.TransientModel):
     
     name = fields.Char(string="Name", default="Import CSV exported from BNP Paribas Fortis")
     file_to_import = fields.Binary(string="Fortis Export CSV", required=True)
+    decimal_separator = fields.Selection([('.', 'Dot (.)'), (',', 'Comma (,)')], default='.', required=True)
     
     _date_format = "%d/%m/%Y"
     
-    _thousand_sep = ","
-    _decimal_sep = "."
     _csv_delimiter = ";"
     _csv_quote = '"'
     _header_length = 8
@@ -44,7 +43,7 @@ class ImportFortis(models.TransientModel):
         if not bank_ids:
             raise ValidationError(_("Bank Account %s does not exist") % rec['bank_id'])
         rec['bank_id'] = bank_ids[0].id
-        rec['amount'] = float(rec['amount'].replace(self._thousand_sep, '').replace(self._decimal_sep, '.'))
+        rec['amount'] = float(rec['amount'].replace(self._thousand_sep, '').replace(self.decimal_separator, '.'))
         rec['transaction_date'] = self._to_iso_date(rec['transaction_date'])
         rec['value_date'] = self._to_iso_date(rec['value_date'])
         cash_flow_env = self.env["perso.account.cash_flow"]
@@ -78,6 +77,7 @@ class ImportFortis(models.TransientModel):
         self.ensure_one()
         csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
         data = csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
+        self._thousand_sep = ',' if self.decimal_separator == '.' else '.'
         #remove Header
         self._read_header(data)
         cash_flow_ids = self.env['perso.account.cash_flow']

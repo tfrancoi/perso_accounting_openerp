@@ -17,11 +17,11 @@ class ImportKeytrade(models.TransientModel):
 
     name = fields.Char(default="Import CSV exported from Keytrade")
     bank_id = fields.Many2one('perso.bank.account')
+    decimal_separator = fields.Selection(default=',')
+
 
     _date_format = "%d.%m.%Y"
 
-    _thousand_sep = "."
-    _decimal_sep = ","
     _csv_delimiter = ";"
     _csv_quote = '"'
     _header_length = 7
