@@ -14,6 +14,9 @@
                                 Account
                             </th>
                             <th class="o_list_number_th">
+                                Remaining Budget
+                            </th>
+                            <th class="o_list_number_th">
                                 Consolidated Budget
                             </th>
                             <th class="o_list_number_th">
@@ -36,7 +39,7 @@
         <t t-set="current_level" t-value="level" />
         <t t-set="current_id" t-value="id" />
         <t t-foreach="children" t-as="account">
-                <tr t-att-class="'o_data_row childof'+current_id + (current_level and ' collapse' or '')" >
+                <tr t-att-class="'o_data_row childof'+current_id + (current_level and '' or ' root')" >
                     <td class="o_data_cell" t-att-id="'childof' + account.id">
                         <span>
                             <t t-foreach="current_level" t-as="i">
@@ -52,13 +55,16 @@
                         </span>
                     </td>
                     <td class="o_data_cell o_list_number">
+                        <t t-esc="account.remaining_budget" />
+                    </td>
+                    <td class="o_data_cell o_list_number">
                         <t t-esc="account.consolidated_budget" />
                     </td>
                     <td class="o_data_cell o_list_number">
-                        <t t-esc="account.amount" />
+                        <t t-esc="account.consolidated_amount" />
                     </td>
                     <td class="o_data_cell o_list_number">
-                        <t t-esc="account.consolidated_amount" />
+                        <t t-esc="account.amount" />
                     </td>
                 </tr>
             <t t-set="children" t-value="account.children" />

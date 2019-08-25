@@ -22,16 +22,21 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         });
         return $.when(this._super(), def);
     },
+    start: function () {
+        this._hide_children(this.$('.root'));
+    },
     _onExpendClicked: function(event) {
         var id = event.currentTarget.id;
         var fa = $(event.currentTarget).find('.fa');
         fa.toggleClass('fa-caret-down');
         fa.toggleClass('fa-caret-right');
-        var children = this.$el.find('.' + id);
-        if(children.is(':hidden') === false) {
-            this._hide_children(children);
+        if (!!id) {
+            var children = this.$el.find('.' + id);
+            if(children.is(':hidden') === false) {
+                this._hide_children(children);
+            }
+            children.toggle();
         }
-        children.toggle();
     },
 
     _hide_children: function(node_list) {

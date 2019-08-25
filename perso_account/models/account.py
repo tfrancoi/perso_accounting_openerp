@@ -124,6 +124,7 @@ class Account(models.Model):
     bank_id             = fields.Many2one("perso.bank.account", compute="_get_dummy", string="Bank Account")
     budget              = fields.Float("Account budget")
     consolidated_budget = fields.Float(compute="_get_amount", string="Consolidated Budget", readonly=True)
+    remaining_budget    = fields.Float(compute="_get_amount", string="Remaining Consolidated Budget", readonly=True)
     is_budget           = fields.Boolean("Is Budget Account", default=False)
 
     previous_amount                    = fields.Float(compute="_get_amount", string="Last Period Amount", readonly=True)
@@ -220,16 +221,20 @@ class Account(models.Model):
                 past_year_amount[cash_flow.account_id.id] += cash_flow.amount
         
         consolidated_budget = dict.fromkeys(compute_ids, 0.0)
+        remaining_consolidated_budget = dict.fromkeys(compute_ids, 0.0)
+
 
         for account_id in compute_ids:
             account_amount = amount[account_id]
-            consolidated_amount[account_id] += account_amount
             budget = budget_per_account[account_id]
-            consolidated_budget[account_id] += budget
             amount_last_month = last_month_amount[account_id]
-            last_month_consolidated_amount[account_id] += amount_last_month
             amount_past_year = past_year_amount[account_id]
+
+            consolidated_amount[account_id] += account_amount
+            consolidated_budget[account_id] += budget
+            last_month_consolidated_amount[account_id] += amount_last_month
             past_year_consolidated_amount[account_id] += amount_past_year
+            remaining_consolidated_budget[account_id] += account_amount - budget
             while parent_per_child.get(account_id, False):
                 parent_id = parent_per_child[account_id]
                 if parent_id in compute_ids:
@@ -237,6 +242,7 @@ class Account(models.Model):
                     consolidated_amount[parent_id] += account_amount
                     last_month_consolidated_amount[parent_id] += amount_last_month
                     past_year_consolidated_amount[parent_id] += amount_past_year
+                    remaining_consolidated_budget[parent_id] +=  account_amount - budget
                 account_id = parent_id
             
 
@@ -249,6 +255,7 @@ class Account(models.Model):
             account.previous_consolidated_amount = last_month_consolidated_amount[account.id]
             account.past_year_mean_amount = past_year_amount[account.id] / len(past_year_ids or [1])
             account.past_year_mean_consolidated_amount = past_year_consolidated_amount[account.id] / len(past_year_ids or [1])
+            account.remaining_budget = remaining_consolidated_budget[account.id]
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -270,6 +277,7 @@ class Account(models.Model):
                 'id': rec.id,
                 'number': rec.number,
                 'name': rec.name,
+                'remaining_budget': round(rec.remaining_budget, 2),
                 'amount': round(rec.amount, 2),
                 'consolidated_amount': round(rec.consolidated_amount, 2),
                 'budget': rec.budget,

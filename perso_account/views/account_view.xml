@@ -4,9 +4,7 @@
         <field name="name">perso.account.tree</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">
-            <tree string="Account"
-                colors="black:consolidated_budget == 0;red:consolidated_amount &lt; consolidated_budget;green:consolidated_amount &gt; consolidated_budget;">
-                <!-- <field name="id" /> -->
+            <tree string="Account"  >
                 <field name="number" />
                 <field name="name" />
                 <field name="type" />
