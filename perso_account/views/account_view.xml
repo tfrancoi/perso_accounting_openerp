@@ -61,6 +61,14 @@
                                 </tree>
                             </field>
                         </page>
+                        <page string="Budget">
+                            <field name="budget_line_ids">
+                                <tree>
+                                    <field name="period_id" />
+                                    <field name="amount" />
+                                </tree>
+                            </field>
+                        </page>
                         <page string="Description">
                             <field name="description" />
                         </page>

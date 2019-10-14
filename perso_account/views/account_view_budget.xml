@@ -3,8 +3,6 @@
 
     <template id="assets_backend" name="account assets" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
-            <!-- <link rel="stylesheet" href="/account/static/src/css/account_bank_and_cash.css"/> -->
-
             <script type="text/javascript" src="/perso_account/static/src/js/account_structure.js"/>
         </xpath>
     </template>
@@ -38,6 +36,7 @@
                 <field name="period_id" context="{'period_id' : self}" />
                 <field name="bank_id" context="{'bank_id' : self}" />
                 <filter name="current_period" context="{'period_id': 'current'}" string="Current Period" />
+                <filter name="budget_lines" domain="[('budget_line_ids', '!=', False)]" />
             </search>
         </field>
     </record>
@@ -71,6 +70,14 @@
                                     <field name="amount" sum="Total" />
                                     <field name="value_date" />
                                     <field name="transaction_date" />
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Budget">
+                            <field name="budget_line_ids">
+                                <tree>
+                                    <field name="period_id" />
+                                    <field name="amount" />
                                 </tree>
                             </field>
                         </page>
@@ -120,4 +127,53 @@
     </record>
 
     <menuitem id="menu_account_structure" parent="perso_account_budget_root" action="action_account_structure" sequence="25"/>
+
+    <record model="ir.ui.view" id="view_perso_account_budget_update_tree">
+        <field name="name">perso.account.tree.update.budget</field>
+        <field name="model">perso.account</field>
+        <field name="arch" type="xml">
+            <tree string="Account" editable="bottom">
+                <field name="number" readonly="1" />
+                <field name="name" readonly="1" />
+                <field name="consolidated_amount" sum="Total" readonly="1" />
+                <field name="remaining_budget" sum="Total" readonly="1"/>
+                <field name="budget" sum="Total" />
+                <field name="consolidated_budget" sum="Total" readonly="1" />
+                <field name="last_period_budget" />
+                <field name="last_period_budget_consolidated" />
+                <field name="previous_consolidated_amount" sum="Total" readonly="1" />
+                <field name="past_year_mean_consolidated_amount" sum="Total" readonly="1" />
+                <field name="parent_id" readonly="1" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="account_budget_update_act_form">
+        <field name="name">Manage Budget</field>
+        <field name="res_model">perso.account</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_perso_account_budget_search" />
+        <field name="context">{'search_default_current_period': 1, 'search_default_budget_lines': 1}</field>
+        <field name="view_id" ref="view_perso_account_budget_update_tree" />
+    </record>
+
+    <menuitem id="menu_account_update_budget" parent="perso_account_budget_root" action="account_budget_update_act_form" sequence="99"/>
+
+    <record id="copy_budget" model="ir.actions.server">
+        <field name="name">Copy Budget From Last Period</field>
+        <field name="model_id" ref="model_perso_account" />
+        <field name="binding_model_id" ref="model_perso_account" />
+        <field name="state">code</field>
+        <field name="binding_type">action</field>
+        <field name="code">
+#Force Context from the domain
+for d in env.context['active_domain']:
+  if len(d) > 1 and d[0] == 'period_id':
+    records = records.with_context(period_id = env['perso.account.period'].browse(d[2]).name)
+for rec in records:
+    rec['budget'] = rec.last_period_budget
+        </field>
+    </record>
+
 </odoo>

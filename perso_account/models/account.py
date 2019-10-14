@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 """
     Configuration Model
@@ -122,15 +122,18 @@ class Account(models.Model):
     consolidated_amount = fields.Float(compute="_get_amount", string="Amount Consolidated", readonly=True)
     period_id           = fields.Many2one("perso.account.period", compute="_get_dummy", string="Period")
     bank_id             = fields.Many2one("perso.bank.account", compute="_get_dummy", string="Bank Account")
-    budget              = fields.Float("Account budget")
+    budget              = fields.Float(compute="_get_amount", inverse="_set_budget", string="Account budget")
     consolidated_budget = fields.Float(compute="_get_amount", string="Consolidated Budget", readonly=True)
+    last_period_budget  = fields.Float(compute="_get_amount", string="Last Period Budget")
     remaining_budget    = fields.Float(compute="_get_amount", string="Remaining Consolidated Budget", readonly=True)
     is_budget           = fields.Boolean("Is Budget Account", default=False)
+    budget_line_ids     = fields.One2many('perso.account.budget.line', 'account_id', string="Budget Lines")
 
-    previous_amount                    = fields.Float(compute="_get_amount", string="Last Period Amount", readonly=True)
-    previous_consolidated_amount       = fields.Float(compute="_get_amount", string="Last Period Amount Consolidated", readonly=True)
-    past_year_mean_amount              = fields.Float(compute="_get_amount", string="Past Year Mean Amount", readonly=True)
-    past_year_mean_consolidated_amount = fields.Float(compute="_get_amount", string="Past Year Mean Consolidated Amount", readonly=True)
+    previous_amount                    = fields.Float(compute="_get_amount", string="Last Period Amount")
+    previous_consolidated_amount       = fields.Float(compute="_get_amount", string="Last Period Amount Consolidated")
+    past_year_mean_amount              = fields.Float(compute="_get_amount", string="Past Year Mean Amount")
+    past_year_mean_consolidated_amount = fields.Float(compute="_get_amount", string="Past Year Mean Consolidated Amount")
+    last_period_budget_consolidated    = fields.Float(compute="_get_amount", string="Last Period Consolidated Budget")
 
     @api.multi
     def _get_all_child(self, account, result):
@@ -195,11 +198,17 @@ class Account(models.Model):
         compute_ids = list(set(compute_ids))
             
         parent_per_child = {}
-        budget_per_account = {}
         for account in self.browse(compute_ids):
             parent_per_child[account.id] = account.parent_id.id
-            budget_per_account[account.id] = account.budget
+
+        domain = [('account_id', 'in', compute_ids)] + ([('period_id', 'in', period_ids.ids)] if period_ids else [])
+        budget_lines = self.env['perso.account.budget.line'].read_group(domain, ['amount'], ['account_id'])
+        #import pdb; pdb.set_trace()
         #Compute direct expense
+        budget_per_account = dict.fromkeys(compute_ids, 0.0)
+        for line in budget_lines:
+            budget_per_account[line['account_id'][0]] = line['amount']
+
         amount = dict.fromkeys(compute_ids, 0.0)
         consolidated_amount = dict.fromkeys(compute_ids, 0.0)
         cash_flow_domain = self._get_cash_domain(compute_ids, period_ids, bank_ids)
@@ -208,10 +217,18 @@ class Account(models.Model):
 
         last_month_amount = dict.fromkeys(compute_ids, 0.0)
         last_month_consolidated_amount = dict.fromkeys(compute_ids, 0.0)
+        previous_month_budget = dict.fromkeys(compute_ids, 0.0)
         if previous_period_id:
             previous_cash_flow_domain = self._get_cash_domain(compute_ids, previous_period_id, bank_ids)
             for cash_flow in cash_flow_obj.search(previous_cash_flow_domain):
                 last_month_amount[cash_flow.account_id.id] += cash_flow.amount
+
+            domain = [('account_id', 'in', compute_ids), ('period_id', '=', previous_period_id.id)]
+            budget_lines_prev = self.env['perso.account.budget.line'].read_group(domain, ['amount'], ['account_id'])
+            for line in budget_lines_prev:
+                previous_month_budget[line['account_id'][0]] = line['amount']
+
+
 
         past_year_amount = dict.fromkeys(compute_ids, 0.0)
         past_year_consolidated_amount = dict.fromkeys(compute_ids, 0.0)
@@ -222,6 +239,7 @@ class Account(models.Model):
         
         consolidated_budget = dict.fromkeys(compute_ids, 0.0)
         remaining_consolidated_budget = dict.fromkeys(compute_ids, 0.0)
+        last_period_consolidated_budget = dict.fromkeys(compute_ids, 0.0)
 
 
         for account_id in compute_ids:
@@ -229,9 +247,11 @@ class Account(models.Model):
             budget = budget_per_account[account_id]
             amount_last_month = last_month_amount[account_id]
             amount_past_year = past_year_amount[account_id]
+            previous_budget = previous_month_budget[account_id]
 
             consolidated_amount[account_id] += account_amount
             consolidated_budget[account_id] += budget
+            last_period_consolidated_budget[account_id] += previous_budget
             last_month_consolidated_amount[account_id] += amount_last_month
             past_year_consolidated_amount[account_id] += amount_past_year
             remaining_consolidated_budget[account_id] += account_amount - budget
@@ -239,6 +259,7 @@ class Account(models.Model):
                 parent_id = parent_per_child[account_id]
                 if parent_id in compute_ids:
                     consolidated_budget[parent_id] += budget
+                    last_period_consolidated_budget[parent_id] += previous_budget
                     consolidated_amount[parent_id] += account_amount
                     last_month_consolidated_amount[parent_id] += amount_last_month
                     past_year_consolidated_amount[parent_id] += amount_past_year
@@ -248,7 +269,10 @@ class Account(models.Model):
 
         #Rearrange result    
         for account in self:
+            account.budget = budget_per_account[account.id]
             account.consolidated_budget = consolidated_budget[account.id]
+            account.last_period_budget = previous_month_budget[account.id]
+            account.last_period_budget_consolidated = last_period_consolidated_budget[account.id]
             account.amount = amount[account.id]
             account.consolidated_amount = consolidated_amount[account.id]
             account.previous_amount = last_month_amount[account.id]
@@ -256,6 +280,28 @@ class Account(models.Model):
             account.past_year_mean_amount = past_year_amount[account.id] / len(past_year_ids or [1])
             account.past_year_mean_consolidated_amount = past_year_consolidated_amount[account.id] / len(past_year_ids or [1])
             account.remaining_budget = remaining_consolidated_budget[account.id]
+
+    def _set_budget(self):
+        budget_line = self.env['perso.account.budget.line']
+        if not 'period_id' in self.env.context:
+            self = self.with_context(period_id='current')
+        period_ids, _, _ = self._get_period()
+        print(period_ids)
+        if len(period_ids) > 1:
+            raise UserError('Cannot write on budget if more then one period given in the context')
+        if not period_ids:
+            raise UserError('No Current Period found')
+
+        for rec in self:
+            line = budget_line.search([('period_id', '=', period_ids.id), ('account_id', '=', rec.id)])
+            if not line:
+                budget_line.create({
+                    'period_id': period_ids.id,
+                    'account_id': rec.id,
+                    'amount': rec.budget,
+                })
+            else:
+                line.amount = rec.budget
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -303,7 +349,8 @@ class ConsolidationAccount(models.Model):
     consolidated_amount = fields.Float(compute="_get_amount", string="Amount Consolidated", readonly=True)
     period_id           = fields.Many2one("perso.account.period", string="Period", compute="_get_dummy")
     bank_id             = fields.Many2one("perso.bank.account", string="Bank Account", compute="_get_dummy")
-    
+
+
     @api.one
     def _get_amount(self):
         accounts = self.account_ids
@@ -379,3 +426,33 @@ class CashFlow(models.Model):
             'type': 'ir.actions.act_window',
             'res_id' : self.id,
         }
+
+
+class BudgetLine(models.Model):
+    _name = 'perso.account.budget.line'
+
+    _description = 'Budget Line'
+
+    """
+        Migration
+        INSERT INTO perso_account_budget_line(amount, account_id, period_id) 
+        SELECT perso_account.budget, perso_account.id, period.id FROM perso_account 
+        LEFT JOIN (select id from perso_account_period order by date_start desc limit 1) period 
+        ON true WHERE budget <> 0;
+    """
+
+    account_id = fields.Many2one('perso.account', required=True)
+    amount = fields.Float(required=True)
+    period_id = fields.Many2one('perso.account.period', required=True)
+
+    _sql_constraints = [
+        ('account_period_unique', 'unique (account_id, period_id)', 'Only one budget line allow per account per period')
+    ]
+
+    @api.multi
+    def name_get(self):
+        res = []
+        for rec in self:
+            res[rec.id] = "%s - %s: %s" % (rec.account_id.name, rec.period_id.name, rec.amount)
+        return res
+
