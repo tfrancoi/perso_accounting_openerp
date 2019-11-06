@@ -163,15 +163,16 @@ class Account(models.Model):
             return False, False, False
 
         period = self.env["perso.account.period"]
-        if self._context["period_id"] == "current":
+        if self._context["period_id"] == "current" or self._context["period_id"] == "previous":
             today = fields.Date.today()
             period_ids = period.search([('date_start', '<=', today), ('date_end', '>=', today)], limit=1, order="date_start desc")
+            if self._context["period_id"] == "previous":
+                period_ids = period_ids.previous_period_id
         else:
             period_ids = period.search([('name', '=', self._context["period_id"])])
 
         if not len(period_ids) == 1:
             return period_ids, False, False
-
         past_year = period.search([('type_id', '=', period_ids.type_id.id), ('date_end', '<', period_ids.date_start)], limit=12, order="date_start desc")
         return period_ids, period_ids.previous_period_id, past_year
 
@@ -315,9 +316,12 @@ class Account(models.Model):
         self.period_id = False
         self.bank_id = False
 
+    
 
     @api.model
-    def get_structure(self):
+    def get_structure(self, hide=False):
+        def is_not_empty(rec):
+            return round(rec.consolidated_budget, 2) or round(rec.consolidated_amount, 2)
         def get_child_info(rec):
             return {
                 'id': rec.id,
@@ -328,13 +332,14 @@ class Account(models.Model):
                 'consolidated_amount': round(rec.consolidated_amount, 2),
                 'budget': rec.budget,
                 'consolidated_budget': round(rec.consolidated_budget, 2),
-                'children': [get_child_info(c) for c in rec.child_ids],
+                'children': [get_child_info(c) for c in rec.child_ids if not hide or is_not_empty(c)],
             }
 
-        roots = self.with_context(period_id='current').search([('parent_id', '=', False)])
+        roots = self.search([('parent_id', '=', False)])
         roots_data = []
         for root in roots:
-            roots_data.append(get_child_info(root))
+            if not hide or is_not_empty(root):
+                roots_data.append(get_child_info(root))
         return roots_data
 
 class ConsolidationAccount(models.Model):
@@ -453,6 +458,6 @@ class BudgetLine(models.Model):
     def name_get(self):
         res = []
         for rec in self:
-            res[rec.id] = "%s - %s: %s" % (rec.account_id.name, rec.period_id.name, rec.amount)
+            res.append((rec.id, "%s - %s: %s" % (rec.account_id.name, rec.period_id.name, rec.amount)))
         return res
 

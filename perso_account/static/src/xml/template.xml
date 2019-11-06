@@ -13,6 +13,9 @@
                             <th class="o_column_sortable">
                                 Account
                             </th>
+                            <th class="o_column_sortable">
+                                Budget
+                            </th>
                             <th class="o_list_number_th">
                                 Remaining Budget
                             </th>
@@ -54,6 +57,9 @@
                             <t t-esc="account.number" /> - <t t-esc="account.name" />
                         </span>
                     </td>
+                    <td class="o_data_cell o_list_number budget" >
+                        <t t-esc="account.budget" />
+                    </td>
                     <td class="o_data_cell o_list_number">
                         <t t-esc="account.remaining_budget" />
                     </td>
@@ -72,6 +78,40 @@
             <t t-set="id" t-value="account.id" />
             <t t-call="account.child" />
         </t>
+    </t>
+
+    <t t-name="account.structure.button">
+        <div>
+            <button type="button" class="btn btn-primary close-all">
+                Close All
+            </button>
+            <button type="button" class="btn btn-primary expand-all">
+                Expand All
+            </button>
+        </div>
+    </t>
+
+    <t t-name="account.structure.search_button">
+        <div class="btn-group o_dropdown dropdown">
+            <a type="button" class="dropdown-toggle" data-toggle="dropdown">
+                <span class="fa fa-calendar" title="Period" role="img" aria-label="Period"></span>
+                Period
+            </a>
+            <div class="dropdown-menu" role="menu">
+                <a role="menuitem" class="dropdown-item period selected" title="Today" data-filter="current">Current</a>
+                <a role="menuitem" class="dropdown-item period" title="Previous" data-filter="previous">Previous</a>
+            </div>
+        </div>
+        <div class="btn-group o_dropdown dropdown">
+            <a type="button" class="dropdown-toggle" data-toggle="dropdown">
+                <span class="fa fa-folder-open" title="Filter" role="img" aria-label="Empty"></span>
+                Filter
+            </a>
+            <div class="dropdown-menu" role="menu">
+                <a role="menuitem" class="dropdown-item filter selected" title="Show All" data-hide="false">Show All</a>
+                <a role="menuitem" class="dropdown-item filter" title="Hide Empty" data-hide="true">Hide Empty</a>
+            </div>
+        </div>
     </t>
 
 </templates>
