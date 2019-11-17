@@ -93,7 +93,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             html_budget += "<button type='button' id='button-budget-"+ account_id +"' class='btn btn-link btn-budget'>validate</button>";
             span.html(html_budget);
             this.$el.find('.btn-budget').click(function(event) {
-                var budget_val = parseInt(self.$el.find('.input-budget').val())
+                var budget_val = parseFloat(self.$el.find('.input-budget').val())
                 if (!!budget_val) {
                     self._rpc({
                         'model': 'perso.account',
