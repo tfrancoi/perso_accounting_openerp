@@ -4,6 +4,7 @@
     <template id="assets_backend" name="account assets" inherit_id="web.assets_backend">
         <xpath expr="." position="inside">
             <script type="text/javascript" src="/perso_account/static/src/js/account_structure.js"/>
+            <link rel='stylesheet' href="/perso_account/static/src/css/structure.css"/>
         </xpath>
     </template>
     <record model="ir.ui.view" id="view_perso_account_budget_tree">

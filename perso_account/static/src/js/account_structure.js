@@ -7,6 +7,10 @@ var core = require('web.core');
 var qweb = core.qweb;
 
 
+//TODO List of account
+//TODO list of period
+//TODO default expand
+
 var ClientAction = AbstractAction.extend(ControlPanelMixin, {
     template: 'account.structure',
     events: {
@@ -41,7 +45,8 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
                 'context': {'period_id': self.period_id}
             }, 
         }).then(function(result) {
-                self.structure = result;
+                self.structure = result[0];
+                self.budget_per_account = result[1];
         });
     },
     reload: function() {
@@ -74,7 +79,36 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         }
     },
     _onClickBudget: function(event) {
-        console.log("CLick on budget")
+        self = this
+        var account_id = parseInt(event.currentTarget.id);
+        if (!! this.account_budget_id && this.account_budget_id != account_id) {
+            var previous_budget = this.$el.find("#" + this.account_budget_id);
+            previous_budget.html("<span>" + this.budget_per_account[this.account_budget_id] + "</span>")
+        }
+        if(this.account_budget_id != account_id) {
+            var span = $(event.currentTarget).children();
+            this.account_budget_id = account_id;
+            $('#' + this.account_budget_id).off('click');
+            var html_budget = "<input type='text' class='budget-"+ account_id  + " input-budget'  value='"+ this.budget_per_account[this.account_budget_id] + "'/>";
+            html_budget += "<button type='button' id='button-budget-"+ account_id +"' class='btn btn-link btn-budget'>validate</button>";
+            span.html(html_budget);
+            this.$el.find('.btn-budget').click(function(event) {
+                var budget_val = parseInt(self.$el.find('.input-budget').val())
+                if (!!budget_val) {
+                    self._rpc({
+                        'model': 'perso.account',
+                        'method': 'write',
+                        'args': [[self.account_budget_id], {'budget': budget_val}],
+                        'kwargs': {
+                            'context': {'period_id': self.period_id}
+                        },
+                    }).then(function(result) {
+                        self.reload();
+                    });
+                }
+                //TODO else show bad input popup
+            });
+        }
     },
 
     _hide_children: function(node_list) {

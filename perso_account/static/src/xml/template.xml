@@ -13,17 +13,17 @@
                             <th class="o_column_sortable">
                                 Account
                             </th>
-                            <th class="o_column_sortable">
-                                Budget
-                            </th>
                             <th class="o_list_number_th">
-                                Remaining Budget
+                                Consolidated Amount
                             </th>
                             <th class="o_list_number_th">
                                 Consolidated Budget
                             </th>
                             <th class="o_list_number_th">
-                                Consolidated Amount
+                                Remaining Budget
+                            </th>
+                            <th class="o_list_number_th">
+                                Budget
                             </th>
                             <th class="o_list_number_th">
                                 Amount
@@ -57,17 +57,17 @@
                             <t t-esc="account.number" /> - <t t-esc="account.name" />
                         </span>
                     </td>
-                    <td class="o_data_cell o_list_number budget" >
-                        <t t-esc="account.budget" />
-                    </td>
                     <td class="o_data_cell o_list_number">
-                        <t t-esc="account.remaining_budget" />
+                        <t t-esc="account.consolidated_amount" />
                     </td>
                     <td class="o_data_cell o_list_number">
                         <t t-esc="account.consolidated_budget" />
                     </td>
                     <td class="o_data_cell o_list_number">
-                        <t t-esc="account.consolidated_amount" />
+                        <t t-esc="account.remaining_budget" />
+                    </td>
+                    <td class="o_data_cell o_list_number budget" t-att-id='account.id'>
+                        <span t-esc="account.budget" />
                     </td>
                     <td class="o_data_cell o_list_number">
                         <t t-esc="account.amount" />

@@ -287,7 +287,6 @@ class Account(models.Model):
         if not 'period_id' in self.env.context:
             self = self.with_context(period_id='current')
         period_ids, _, _ = self._get_period()
-        print(period_ids)
         if len(period_ids) > 1:
             raise UserError('Cannot write on budget if more then one period given in the context')
         if not period_ids:
@@ -322,7 +321,8 @@ class Account(models.Model):
     def get_structure(self, hide=False):
         def is_not_empty(rec):
             return round(rec.consolidated_budget, 2) or round(rec.consolidated_amount, 2)
-        def get_child_info(rec):
+        def get_child_info(rec, budget_per_account):
+            budget_per_account[rec.id] = rec.budget
             return {
                 'id': rec.id,
                 'number': rec.number,
@@ -332,15 +332,15 @@ class Account(models.Model):
                 'consolidated_amount': round(rec.consolidated_amount, 2),
                 'budget': rec.budget,
                 'consolidated_budget': round(rec.consolidated_budget, 2),
-                'children': [get_child_info(c) for c in rec.child_ids if not hide or is_not_empty(c)],
+                'children': [get_child_info(c, budget_per_account) for c in rec.child_ids if not hide or is_not_empty(c)],
             }
-
+        budget_per_account = {}
         roots = self.search([('parent_id', '=', False)])
         roots_data = []
         for root in roots:
             if not hide or is_not_empty(root):
-                roots_data.append(get_child_info(root))
-        return roots_data
+                roots_data.append(get_child_info(root, budget_per_account))
+        return [roots_data, budget_per_account]
 
 class ConsolidationAccount(models.Model):
     
