@@ -94,7 +94,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             span.html(html_budget);
             this.$el.find('.btn-budget').click(function(event) {
                 var budget_val = parseFloat(self.$el.find('.input-budget').val())
-                if (!!budget_val) {
+                if (!!budget_val || budget_val === 0.0) {
                     self._rpc({
                         'model': 'perso.account',
                         'method': 'write',
