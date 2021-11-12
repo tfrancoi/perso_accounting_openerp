@@ -72,31 +72,6 @@ class AccountPeriod(models.Model):
             
         return lines
 
-    def _close_period(self):
-        self.ensure_one()
-        previous_lines = self._get_previous_line()
-
-        repot_env = self.env['perso.account.report_line']
-        repot_env.search([("period_id", '=', self.id)]).unlink()
-        for bank in self.env['perso.bank.account'].search([]):
-            accounts = self.env['perso.account'].with_context(period_id=self.name, bank_id=bank.name).search([])
-            for account in accounts:
-                previous_line = previous_lines.get((bank.id, account.id), repot_env)
-                if not account.amount and not account.consolidated_amount \
-                   and not previous_line.cumulative_amount and not previous_line.cumulative_amount_consolidated:
-                    continue
-                repot_env.create({
-                    'period_id' : self.id,
-                    'bank_id': bank.id,
-                    'account_id' : account.id,
-                    'type' : account.type,
-                    'amount' : account.amount,
-                    'amount_consolidated' : account.consolidated_amount,
-                    'period_type_id' : self.type_id.id,
-                    'cumulative_amount': previous_line.cumulative_amount + account.amount,
-                    'cumulative_amount_consolidated' : previous_line.cumulative_amount_consolidated + account.consolidated_amount
-                })
-
 """
     Account Model
 """

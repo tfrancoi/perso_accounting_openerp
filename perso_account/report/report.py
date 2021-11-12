@@ -24,13 +24,5 @@ class AccountReportLine(models.Model):
 
     @api.model
     def _generate_line(self, period_ids=None):
-        if period_ids:
-            periods = self.env['perso.account.period'].browse(period_ids)
-        else:
-            periods = self.env['perso.account.period'].search([])
-
-        period_to_sort = { period : [period.previous_period_id] for period in periods}
-        for period in topological_sort(period_to_sort):
-            period._close_period()
-        _logger.info("Generate Report Line Done")
+        pass
 

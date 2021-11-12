@@ -100,6 +100,11 @@
             <div class="dropdown-menu" role="menu">
                 <a role="menuitem" class="dropdown-item period selected" title="Today" data-filter="current">Current</a>
                 <a role="menuitem" class="dropdown-item period" title="Previous" data-filter="previous">Previous</a>
+                <t t-foreach="period_list" t-as="period">
+                    <a role="menuitem" class="dropdown-item period" t-att-title="period[1]" t-att-data-bank="period[0]">
+                        <t t-esc="period[1]" />
+                    </a>
+                </t>
             </div>
         </div>
         <div class="btn-group o_dropdown dropdown">
@@ -110,6 +115,22 @@
             <div class="dropdown-menu" role="menu">
                 <a role="menuitem" class="dropdown-item filter selected" title="Show All" data-hide="false">Show All</a>
                 <a role="menuitem" class="dropdown-item filter" title="Hide Empty" data-hide="true">Hide Empty</a>
+            </div>
+        </div>
+        <div class="btn-group o_dropdown dropdown">
+            <a type="button" class="dropdown-toggle" data-toggle="dropdown">
+                <span class="fa fa-folder-open" title="Bank" role="img" aria-label="Empty"></span>
+                Bank
+            </a>
+            <div class="dropdown-menu" role="menu">
+                <a role="menuitem" class="dropdown-item bank" title="Select All" data-bank="all">Select All</a>
+                <a role="menuitem" class="dropdown-item bank" title="Deselect All" data-bank="none">Deselect All</a>
+                
+                <t t-foreach="bank_list" t-as="bank">
+                    <a role="menuitem" class="dropdown-item bank selected" t-att-title="bank[1]" t-att-data-bank="bank[0]">
+                        <t t-esc="bank[1]" />
+                    </a>
+                </t>
             </div>
         </div>
     </t>

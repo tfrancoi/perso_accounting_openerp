@@ -22,7 +22,8 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         this.period_id = 'current';
         this.hide = false;
         var def = this.loadData();
-        return $.when(this._super(), def);
+        var def2 = this.loadFilterData();
+        return $.when(this._super(), def, def2);
     },
     start: function () {
         this._renderButtons();
@@ -48,6 +49,26 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
                 self.structure = result[0];
                 self.budget_per_account = result[1];
         });
+    },
+    loadFilterData: function() {
+        var self = this;
+        var def1 = this._rpc({
+            'model': 'perso.bank.account',
+            'method': 'name_search',
+            'args': [''],
+        }).then(function(result) {
+            self.bank_list = result;
+            console.log(self.bank_list);
+        });
+        var def2 = this._rpc({
+            'model': 'perso.account.period',
+            'method': 'name_search',
+            'args': [''],
+        }).then(function(result) {
+            self.period_list = result;
+            console.log(self.period_list);
+        });
+        return $.when(def1, def2);
     },
     reload: function() {
         var self = this;
@@ -138,7 +159,12 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
     },
     _renderSearchButtons: function () {
         var self = this;
-        this.$searchview_buttons = $(qweb.render('account.structure.search_button'));
+        console.log(this.bank_list);
+        this.$searchview_buttons = $(qweb.render('account.structure.search_button', {
+            bank_list: this.bank_list,
+            period_list: this.period_list,
+            test: "Salut",
+        }));
         this.$searchview_buttons.find('.period').click(function(event) {
             self.$searchview_buttons.find('.period').toggleClass('selected', false);
             var period = $(this).data('filter');
