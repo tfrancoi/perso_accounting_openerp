@@ -43,7 +43,7 @@ class ImportFortis(models.TransientModel):
         if not bank_ids:
             raise ValidationError(_("Bank Account %s does not exist") % rec['bank_id'])
         rec['bank_id'] = bank_ids[0].id
-        rec['amount'] = float(rec['amount'].replace(self._thousand_sep, '').replace(self.decimal_separator, '.'))
+        rec['amount'] = float(rec['amount'].replace(self._get_thousand_sep(), '').replace(self.decimal_separator, '.'))
         rec['transaction_date'] = self._to_iso_date(rec['transaction_date'])
         rec['value_date'] = self._to_iso_date(rec['value_date'])
         cash_flow_env = self.env["perso.account.cash_flow"]
@@ -72,11 +72,16 @@ class ImportFortis(models.TransientModel):
         date_obj = datetime.datetime.strptime(orig_date, self._date_format)
         return date_obj.strftime('%Y-%m-%d')
 
+    def _get_data(self):
+        csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
+        return csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
+
+    def _get_thousand_sep(self):
+        return ',' if self.decimal_separator == '.' else '.'
+
     def import_file(self):
         self.ensure_one()
-        csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
-        data = csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
-        self._thousand_sep = ',' if self.decimal_separator == '.' else '.'
+        data = self._get_data()
         #remove Header
         self._read_header(data)
         cash_flow_ids = self.env['perso.account.cash_flow']

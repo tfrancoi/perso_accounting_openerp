@@ -39,6 +39,7 @@
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
         'wizard/import_axa.xml',
+        'wizard/import_argenta.xml',
         'wizard/import_keytrade.xml',
         'wizard/period_report.xml',
     ],

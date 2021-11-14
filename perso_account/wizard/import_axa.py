@@ -41,7 +41,7 @@ class ImportAxa(models.TransientModel):
         rec['bank_id'] = self.bank
         rec['name'] += '\n%s\n%s' % (rec['com1'], rec['com2'])
         rec['name'] = rec['name'].strip()
-        amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self.decimal_separator, '.'))
+        amount = float(rec['amount'].replace(self._get_thousand_sep(), '').replace(self.decimal_separator, '.'))
         ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
         ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
         rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)
@@ -49,7 +49,7 @@ class ImportAxa(models.TransientModel):
         return super(ImportAxa, self)._import_rec(rec)
 
     def _read_header(self, data):
-        print(next(data)) #remove first line
+        next(data) #remove first line
         #second line contains the bank account number
         self.bank = ''.join(next(data)[0].split(' ')[1:])
         super(ImportAxa, self)._read_header(data)
