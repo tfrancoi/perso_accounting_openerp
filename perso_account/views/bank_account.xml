@@ -15,7 +15,6 @@
     <record model="ir.actions.act_window" id="bank_account_form">
         <field name="name">Bank Account</field>
         <field name="res_model">perso.bank.account</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree</field>
     </record>
 

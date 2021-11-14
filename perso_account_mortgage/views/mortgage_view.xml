@@ -101,7 +101,6 @@
     <record model="ir.actions.act_window" id="mortgage_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.bank.mortgage</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
 

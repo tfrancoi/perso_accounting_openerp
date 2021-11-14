@@ -1,7 +1,7 @@
 odoo.define('perso_account.AccountStructure', function (require) {
-    "use strict";
+"use strict";
 
-var ControlPanelMixin = require('web.ControlPanelMixin');
+//var ControlPanelMixin = require('web.ControlPanelMixin');
 var AbstractAction = require('web.AbstractAction');
 var core = require('web.core');
 var qweb = core.qweb;
@@ -11,8 +11,10 @@ var qweb = core.qweb;
 //TODO list of period
 //TODO default expand
 
-var ClientAction = AbstractAction.extend(ControlPanelMixin, {
-    template: 'account.structure',
+var ClientAction = AbstractAction.extend({
+    hasControlPanel: true,
+    //loadControlPanel: true,
+    contentTemplate: 'account.structure',
     events: {
         'click tbody tr td': '_onExpendClicked',
         'click .budget': '_onClickBudget',
@@ -25,15 +27,15 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         var def2 = this.loadFilterData();
         return $.when(this._super(), def, def2);
     },
-    start: function () {
+    start: async function () {
         this._renderButtons();
         this._renderSearchButtons();
-        this._updateControlPanel();
+        this.controlPanelProps.cp_content = {
+            $buttons: this.$buttons,
+            $searchview_buttons: this.$searchview_buttons
+        }
+        await this._super(...arguments);
         this.close_all();
-    },
-    do_show: function () {
-        this._super.apply(this, arguments);
-        this._updateControlPanel();
     },
     loadData: function() {
         var self = this;
@@ -43,7 +45,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             'args': [],
             'kwargs': {
                 'hide': self.hide,
-                'context': {'period_id': self.period_id}
+                'context': {'period_id': self.period_id, 'bank_ids': self.bank_ids}
             }, 
         }).then(function(result) {
                 self.structure = result[0];
@@ -58,7 +60,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             'args': [''],
         }).then(function(result) {
             self.bank_list = result;
-            console.log(self.bank_list);
+            self.bank_ids = []
         });
         var def2 = this._rpc({
             'model': 'perso.account.period',
@@ -66,14 +68,15 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             'args': [''],
         }).then(function(result) {
             self.period_list = result;
-            console.log(self.period_list);
         });
         return $.when(def1, def2);
     },
     reload: function() {
         var self = this;
         this.loadData().then(function() {
-            self.renderElement();
+            const content = core.qweb.render(self.contentTemplate, { widget: self });
+            self.$('.o_content').empty();
+            self.$('.o_content').append(content);
             self.close_all();
         })
     },
@@ -81,7 +84,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         this._hide_children(this.$('.root'));
     },
     expand_all: function() {
-        var fa = this.$el.find('.fa');
+        var fa = this.$el.find('.fa-caret-right, .fa-caret-down');
         fa.removeClass('fa-caret-right');
         fa.addClass('fa-caret-down');
         this.$el.find('tr').show();
@@ -110,7 +113,7 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             var span = $(event.currentTarget).children();
             this.account_budget_id = account_id;
             $('#' + this.account_budget_id).off('click');
-            var html_budget = "<input type='text' class='budget-"+ account_id  + " input-budget'  value='"+ this.budget_per_account[this.account_budget_id] + "'/>";
+            var html_budget = "<input type='text' style='display:inline' class='budget-"+ account_id  + " input-budget'  value='"+ this.budget_per_account[this.account_budget_id] + "'/>";
             html_budget += "<button type='button' id='button-budget-"+ account_id +"' class='btn btn-link btn-budget'>validate</button>";
             span.html(html_budget);
             this.$el.find('.btn-budget').click(function(event) {
@@ -131,7 +134,9 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
             });
         }
     },
-
+    _get_bank_ids: function(bank_list) {
+        return bank_list.reduce((prev, cur) => prev.concat([cur[0]]), [])
+    },
     _hide_children: function(node_list) {
         var nodes = node_list.find('td');
         var fa = nodes.find('.fa');
@@ -159,15 +164,14 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
     },
     _renderSearchButtons: function () {
         var self = this;
-        console.log(this.bank_list);
         this.$searchview_buttons = $(qweb.render('account.structure.search_button', {
             bank_list: this.bank_list,
             period_list: this.period_list,
-            test: "Salut",
         }));
         this.$searchview_buttons.find('.period').click(function(event) {
             self.$searchview_buttons.find('.period').toggleClass('selected', false);
             var period = $(this).data('filter');
+            self.$searchview_buttons.find('.period-name').html($(this).attr('title'))
             if (self.period_id != period) {
                 $(this).toggleClass('selected', true);
                 self.period_id = period;
@@ -181,17 +185,41 @@ var ClientAction = AbstractAction.extend(ControlPanelMixin, {
         this.$searchview_buttons.find('.filter').click(function(event) {
             self.$searchview_buttons.find('.filter').toggleClass('selected', false);
             self.hide = $(this).data('hide');
+            self.$searchview_buttons.find('.filter-name').html($(this).attr('title'))
             $(this).toggleClass('selected', true);
             self.reload();
         });
+        this.$searchview_buttons.find('.bank').click(function(event) {
+            //self.$searchview_buttons.find('.bank').toggleClass('selected', false);
+            var bank = $(this).data('bank');
+            if (bank == 'none') {
+                self.$searchview_buttons.find('.bank-id').toggleClass('selected', false);
+                self.bank_ids = []
+            }
+            else if (bank == 'all') {
+                self.$searchview_buttons.find('.bank-id').toggleClass('selected', true);
+                self.bank_ids = self._get_bank_ids(self.bank_list)
+            }
+            else {
+                $(this).toggleClass('selected');
+                if ($(this).hasClass('selected')) {
+                    self.bank_ids = self.bank_ids.concat([bank])
+                }
+                else {
+                    self.bank_ids = self.bank_ids.filter(b => b != bank)
+                }
+            }
+            self.reload();
+        });
     },
-    _updateControlPanel: function () {
-        this.update_control_panel({
-            cp_content: {
-                $buttons: this.$buttons,
-                $searchview_buttons: this.$searchview_buttons
-            },
-        })
+    update_cp: function () {
+        this._renderButtons();
+        this._renderSearchButtons();
+        this.controlPanelProps.cp_content = {
+            $buttons: this.$buttons,
+            $searchview_buttons: this.$searchview_buttons
+        }
+        return this.updateControlPanel()
     },
 });
 

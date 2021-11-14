@@ -48,7 +48,6 @@ class Mortgage(models.Model):
             rec.interest_paid = sum(rec.paid_line_ids.mapped('interest_paid'))
             rec.principal_paid = sum(rec.paid_line_ids.mapped('principal_paid'))
 
-    @api.multi
     def compute(self):
         self.ensure_one()
         self.line_ids.unlink()
@@ -69,7 +68,6 @@ class Mortgage(models.Model):
         for l in lines:
             self.env['perso.bank.mortgage.line'].create(l)
 
-    @api.multi
     def clean(self):
         self.ensure_one()
         self.monthly_rate = 0.0
@@ -90,7 +88,7 @@ class Mortgage(models.Model):
         C = Decimal(capital)
         lines = []
         cost = Decimal('0.0')
-        for i in xrange(1, duration + 1):
+        for i in range(1, duration + 1):
             interest = C * rate_month
             c_remb = price_month - interest
             C = C - c_remb

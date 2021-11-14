@@ -16,19 +16,24 @@ migrator = Migrator(CONNECTION_FILE_OUT, CONNECTION_FILE_IN)
 migrator.export_batch_size = 400
 migrator.migrate('perso.account.period_type', [], ['id', 'name'])
 
-migrator.migrate('perso.account.period', [('active', 'in', [True, False])], ['id', 'name', 'type_id/id', 'date_start', 'date_end', 'active', 'previous_period_id/id'], debug=False)
-migrator.migrate('perso.account.period', [('active', 'in', [True, False]), ('previous_period_id', '!=', False)], ['id', 'previous_period_id/id'], debug=False)
+migrator.migrate('perso.account.period', ['|', ('active', '=', True), ('active', '=', False)], ['id', 'name', 'type_id/id', 'date_start', 'date_end', 'active'])
+migrator.migrate('perso.account.period', ['|', ('active', '=', True), ('active', '=', False), ('previous_period_id', '!=', False)], ['id', 'previous_period_id/id'])
 
 migrator.migrate('perso.bank.account', [], ['id', 'name', 'description', 'sequence'])
 
-migrator.migrate('perso.account', [], ['id', 'number', 'name', 'type', 'description', 'budget'])
+migrator.migrate('perso.account', [], ['id', 'number', 'name', 'type', 'description', 'is_budget'])
 migrator.migrate('perso.account', [('parent_id', '!=', False)], ['id', 'parent_id/id'])
+migrator.migrate('ir.filters', [], ['id', 'name', 'model_id/id', 'is_default', 'active', 'domain', 'context', 'sort'])
 
-migrator.migrate('perso.account.consolidation', [], ['id', 'name', 'description', 'account_ids/id'])
+# migrator.migrate('perso.account.consolidation', [], ['id', 'name', 'description', 'account_ids/id'])
 
 migrator.import_batch_size = 100
 migrator.migrate('perso.account.cash_flow', [], ['id', 'reference', 'name', 'account_id/id', 'bank_id/id',
                                                  'value_date', 'transaction_date', 'amount', 'distributed'])
+migrator.migrate('perso.account.budget.line', [], ['id', 'amount', 'period_id/id', 'account_id/id'])
+
+migrator.migrate('perso.account.distribution_template', [], ['id', 'name'])
+migrator.migrate('perso.account.distribution_template.line', [], ['id', 'name', 'amount', 'template_id/id', 'account_id/id'])
 
 if asset == True:
     migrator.migrate('perso.account.asset', [], ['id', 'name', 'cash_flow_id/id', 'start_date', 'end_date', 'value'])

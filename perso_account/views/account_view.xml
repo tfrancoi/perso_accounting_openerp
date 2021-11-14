@@ -34,9 +34,16 @@
         <field name="name">perso.account.form</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">
-            <form string="Account" version="7.0">
+            <form string="Account">
+                <header>
+                    <button type="object" name="toggle_active" string="Archive" attrs="{'invisible': [('active', '=', False)]}"/>
+                    <button type="object" name="toggle_active" string="Restore" attrs="{'invisible': [('active', '=', True)]}"/>
+                </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+
                     <group>
+                        <field name="active" invisible="1" />
                         <field name="name" />
                         <field name="number" />
                         <field name="type" />
@@ -83,7 +90,6 @@
     <record model="ir.actions.act_window" id="account_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.account</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="view_id" ref="view_perso_account_tree" />
     </record>

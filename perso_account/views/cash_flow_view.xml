@@ -83,7 +83,7 @@
         <field name="type">graph</field>
         <field name="arch" type="xml">
             <graph string="Account Graph" type="pie">
-                <field name="account_id" group="True" />
+                <field name="account_id" />
                 <field name="amount" operator="+" />
             </graph>
         </field>
@@ -92,15 +92,11 @@
     <record model="ir.actions.act_window" id="cash_flow_act_form">
         <field name="name">Cash Flow</field>
         <field name="res_model">perso.account.cash_flow</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form,pivot,graph</field>
     </record>
 
-
     <menuitem id="perso_account_cash_flow" parent="perso_account_root"
         name="Cash Flow" action="cash_flow_act_form" />
-
-
 
     <record model="ir.ui.view" id="view_perso_cash_flow_tree_quick_assign">
         <field name="name">perso.account.cash_flow.tree</field>

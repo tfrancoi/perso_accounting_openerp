@@ -30,7 +30,6 @@
     <record model="ir.actions.act_window" id="period_report_action">
         <field name="name">Period Report</field>
         <field name="res_model">perso.account.period.report</field>
-        <field name="view_type">form</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>

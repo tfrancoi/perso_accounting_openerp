@@ -27,23 +27,29 @@
     'author': 'Thibault Francois',
     'depends': ['base'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
+    'license': 'LGPL-3',
     'data': [
         'security/groups.xml',
         'security/ir.model.access.csv',
         'views/account_view.xml',
         'views/account_view_budget.xml',
         'views/cash_flow_view.xml',
-        'views/consolidation_account_view.xml',
         'views/period_view.xml',
         'views/bank_account.xml',
-        'report/report.xml',
         'wizard/distribution.xml',
         'wizard/import_fortis.xml',
         'wizard/import_axa.xml',
         'wizard/import_keytrade.xml',
         'wizard/period_report.xml',
-        'data/cron.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'perso_account/static/src/**/*',
+        ],
+        'web.assets_qweb': [
+            'perso_account/static/src/xml/*.xml',
+        ],
+    },
     'installable': True,
     'application': True,
     'qweb': [

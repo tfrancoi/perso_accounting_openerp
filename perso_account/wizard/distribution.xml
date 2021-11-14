@@ -15,11 +15,7 @@
                         <field name="cash_flow_id"
                             domain="[('reference', '!=', False), ('distributed', '=', False)]" />
                         <field name="account_regulation_id" />
-                        <field name="upload_details" />
 
-                    </group>
-                    <group attrs="{'invisible' : [('upload_details', '!=', True)]}" col="3">
-                        <field name="file_data" /><button name="import_details" type="object" string="Load Details" />
                     </group>
                     <field name="line_ids">
                         <tree editable="bottom">
@@ -50,7 +46,6 @@
         <record model="ir.actions.act_window" id="distribution">
             <field name="name">Distribution</field>
             <field name="res_model">perso.account.distribution</field>
-            <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>

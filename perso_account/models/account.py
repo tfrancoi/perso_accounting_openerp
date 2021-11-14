@@ -19,7 +19,6 @@ class BankAccount(models.Model):
         ('name_uniq', 'unique (name)', 'Each name must be unique.')
     ]
 
-    @api.multi
     @api.depends('name', 'description')
     def name_get(self):
         result = []
@@ -54,14 +53,13 @@ class AccountPeriod(models.Model):
     _name = 'perso.account.period'
     _description = 'Period'
     
-    _order = 'date_start asc'
+    _order = 'date_start desc'
 
     name               = fields.Char("Name")
     date_start         = fields.Date("Date Start")
     date_end           = fields.Date("Date End")
     active             = fields.Boolean("Active", default=True)
     previous_period_id = fields.Many2one('perso.account.period')
-    line_ids           = fields.One2many('perso.account.report_line', 'period_id')
     type_id            = fields.Many2one('perso.account.period_type')
 
 
@@ -83,6 +81,7 @@ class Account(models.Model):
 
     name                = fields.Char("Name", required=True)
     number              = fields.Char("Number", help="Allow to define your order")
+    active              = fields.Boolean(default=True)
     parent_id           = fields.Many2one("perso.account", string="Parent Account")
     child_ids           = fields.One2many("perso.account", "parent_id", string="Children account", readonly=True)
     cash_flow_ids       = fields.One2many('perso.account.cash_flow', 'account_id', string="Cash Flow")
@@ -110,7 +109,6 @@ class Account(models.Model):
     past_year_mean_consolidated_amount = fields.Float(compute="_get_amount", string="Past Year Mean Consolidated Amount")
     last_period_budget_consolidated    = fields.Float(compute="_get_amount", string="Last Period Consolidated Budget")
 
-    @api.multi
     def _get_all_child(self, account, result):
         if not account.child_ids:
             return list(set(result))
@@ -149,6 +147,7 @@ class Account(models.Model):
         if not len(period_ids) == 1:
             return period_ids, False, False
         past_year = period.search([('type_id', '=', period_ids.type_id.id), ('date_end', '<', period_ids.date_start)], limit=12, order="date_start desc")
+        print(period_ids.name)
         return period_ids, period_ids.previous_period_id, past_year
 
     def _get_bank(self):
@@ -161,7 +160,6 @@ class Account(models.Model):
 
         return bank_ids
 
-    @api.multi
     def _get_amount(self):
         cash_flow_obj = self.env['perso.account.cash_flow']
         bank_ids = self._get_bank()
@@ -284,8 +282,7 @@ class Account(models.Model):
         if self.env.context.get('hide_empty_account'):
             res = res.filtered(lambda x : x.amount != 0.0 or x.consolidated_amount != 0.0)
         return res
-    
-    @api.one
+
     def _get_dummy(self):
         self.period_id = False
         self.bank_id = False
@@ -317,30 +314,7 @@ class Account(models.Model):
                 roots_data.append(get_child_info(root, budget_per_account))
         return [roots_data, budget_per_account]
 
-class ConsolidationAccount(models.Model):
-    
-    _name = "perso.account.consolidation"
-    _description = 'Consolidation Account'
-    
-    name                = fields.Char("Name")
-    description         = fields.Text("Description")
-    account_ids         = fields.Many2many("perso.account", string="Accounts")
-    amount              = fields.Float(compute="_get_amount", string="Amount", readonly=True)
-    consolidated_amount = fields.Float(compute="_get_amount", string="Amount Consolidated", readonly=True)
-    period_id           = fields.Many2one("perso.account.period", string="Period", compute="_get_dummy")
-    bank_id             = fields.Many2one("perso.bank.account", string="Bank Account", compute="_get_dummy")
 
-
-    @api.one
-    def _get_amount(self):
-        accounts = self.account_ids
-        self.amount =  sum([a.amount for a in accounts])
-        self.consolidated_amount = sum([a.consolidated_amount for a in accounts])
-
-    @api.one
-    def _get_dummy(self):
-        self.period_id = False
-        self.bank_id = False
     
 
 class CashFlow(models.Model):
@@ -366,15 +340,15 @@ class CashFlow(models.Model):
     
     _order = "value_date desc"
     
-    @api.one
     @api.depends('amount')
     def _invert(self):
-        self.amount_opposite = - self.amount
+        for rec in self:
+            rec.amount_opposite = - rec.amount
     
-    @api.multi
     @api.depends('value_date')
     def _get_period(self):
         period_obj = self.env["perso.account.period"]
+        self.period_id = False
         for period in period_obj.search([]):
             cash_flow = self.search([("value_date", ">=", period.date_start), ("value_date", "<=", period.date_end), ('id', 'in', self.ids)])
             for cash in cash_flow:
@@ -395,12 +369,10 @@ class CashFlow(models.Model):
 
         return [('id', 'in', self.search(domain).ids)]
 
-    @api.multi
     def edit(self):
         self.ensure_one()
         return {
             'name': 'Edit Cash Flow',
-            'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'perso.account.cash_flow',
             'type': 'ir.actions.act_window',
@@ -429,7 +401,6 @@ class BudgetLine(models.Model):
         ('account_period_unique', 'unique (account_id, period_id)', 'Only one budget line allow per account per period')
     ]
 
-    @api.multi
     def name_get(self):
         res = []
         for rec in self:

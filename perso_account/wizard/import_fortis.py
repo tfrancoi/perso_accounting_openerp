@@ -72,7 +72,6 @@ class ImportFortis(models.TransientModel):
         date_obj = datetime.datetime.strptime(orig_date, self._date_format)
         return date_obj.strftime('%Y-%m-%d')
 
-    @api.multi
     def import_file(self):
         self.ensure_one()
         csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))

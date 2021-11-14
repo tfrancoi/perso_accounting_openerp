@@ -27,6 +27,7 @@
     'author': 'Thibault Francois',
     'depends': ['perso_account'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
+    'license': 'LGPL-3',
     'data': [
         'security/ir.model.access.csv',
         'views/mortgage_view.xml',

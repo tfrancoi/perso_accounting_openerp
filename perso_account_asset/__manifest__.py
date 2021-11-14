@@ -25,6 +25,7 @@
     'author': 'Perso Account',
     'depends': ['perso_account'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
+    'license': 'LGPL-3',
     'data': [
         'security/ir.model.access.csv',
         'views/asset_view.xml',

@@ -43,7 +43,6 @@
     <record model="ir.actions.act_window" id="account_period_act_form">
         <field name="name">Period</field>
         <field name="res_model">perso.account.period</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
     <menuitem id="perso_account_configuration_root" parent="perso_account_top"

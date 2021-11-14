@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <template id="assets_backend" name="account assets" inherit_id="web.assets_backend">
-        <xpath expr="." position="inside">
-            <script type="text/javascript" src="/perso_account/static/src/js/account_structure.js"/>
-            <link rel='stylesheet' href="/perso_account/static/src/css/structure.css"/>
-        </xpath>
-    </template>
     <record model="ir.ui.view" id="view_perso_account_budget_tree">
         <field name="name">perso.account.tree</field>
         <field name="model">perso.account</field>
@@ -96,7 +89,6 @@
     <record model="ir.actions.act_window" id="account_budget_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.account</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_perso_account_budget_search" />
         <field name="domain">[('is_budget', '=', True)]</field>
@@ -152,7 +144,6 @@
     <record model="ir.actions.act_window" id="account_budget_update_act_form">
         <field name="name">Manage Budget</field>
         <field name="res_model">perso.account</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="search_view_id" ref="view_perso_account_budget_search" />
         <field name="context">{'search_default_current_period': 1, 'search_default_budget_lines': 1}</field>

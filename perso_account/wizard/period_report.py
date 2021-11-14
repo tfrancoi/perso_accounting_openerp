@@ -4,8 +4,8 @@
 
     @author: Thibault Francois
 '''
-from openerp import api, fields, models, _
-from openerp.exceptions import UserError
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -36,7 +36,6 @@ class PeriodReport(models.TransientModel):
         if self.period_id:
             self.next_period_id = self.env['perso.account.period'].search([('previous_period_id', '=', self.period_id.id)], limit=1)
 
-    @api.multi
     def confirm(self):
         self.ensure_one()
         name = "%s %s" % (self.name, self.period_id.name)

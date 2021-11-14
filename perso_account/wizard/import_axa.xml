@@ -24,7 +24,6 @@
         <record model="ir.actions.act_window" id="import_axa">
                 <field name="name">Import Axa</field>
                 <field name="res_model">perso.account.import_axa</field>
-                <field name="view_type">form</field>
                 <field name="view_mode">form</field>
                 <field name="target">new</field>
        </record>
