@@ -45,7 +45,7 @@
                             <field name="monthly_payement" attrs="{'readonly': [('state', '!=', 'draft')]}" />
                             <separator string="Payement" colspan="2" attrs="{'invisible': [('state', '!=', 'valid')]}" />
                             <field name="cash_flow_id" string="Last Payment Cash Flow"
-                                        domain="[('id', 'not in', used_cash_flow_ids[0][2])]"
+                                        domain="[('id', 'not in', used_cash_flow_ids)]"
                                         attrs="{'invisible': [('state', '!=', 'valid')]}" />
                             <button name="payment" type="object" string="Payment"  attrs="{'invisible': [('state', '!=', 'valid')]}"/>
                         </group>

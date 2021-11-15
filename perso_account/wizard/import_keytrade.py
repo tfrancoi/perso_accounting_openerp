@@ -20,12 +20,12 @@ class ImportKeytrade(models.TransientModel):
     decimal_separator = fields.Selection(default=',')
 
 
-    _date_format = "%d.%m.%Y"
+    _date_format = "%d/%m/%Y"
 
     _csv_delimiter = ";"
     _csv_quote = '"'
     _header_length = 7
-    _encoding = 'iso-8859-1'
+    _encoding = 'utf-8'
 
     _cash_flow_mapping = {
         0: "reference",
@@ -41,4 +41,5 @@ class ImportKeytrade(models.TransientModel):
         rec['bank_id'] = self.bank_id.name
         rec['name'] = rec['name'].strip()
         rec['reference'] = rec['reference'].strip()
+        rec['amount'] = rec['amount'].replace(' ', '').replace('+', '')
         return super(ImportKeytrade, self)._import_rec(rec)

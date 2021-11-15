@@ -25,7 +25,7 @@
     'version': '1.0',
     "category": 'Perso Account',
     'author': 'Thibault Francois',
-    'depends': ['base'],
+    'depends': ['base', 'web'],
     'website': 'https://github.com/tfrancoi/perso_accounting_openerp',
     'license': 'LGPL-3',
     'data': [
