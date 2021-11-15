@@ -57,6 +57,10 @@ class ImportFortis(models.TransientModel):
         while len(header) != self._header_length:
             header = next(data)
 
+    def _get_data(self):
+        csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
+        return csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
+
     #End of specific to import fortis
     def _map(self, record):
         mapped_rec = {}
@@ -71,10 +75,6 @@ class ImportFortis(models.TransientModel):
             return fields.Date.today()
         date_obj = datetime.datetime.strptime(orig_date, self._date_format)
         return date_obj.strftime('%Y-%m-%d')
-
-    def _get_data(self):
-        csv_file = StringIO(b64decode(self.file_to_import).decode(self._encoding))
-        return csv.reader(csv_file, delimiter=self._csv_delimiter, quotechar=self._csv_quote)
 
     def _get_thousand_sep(self):
         return ',' if self.decimal_separator == '.' else '.'
