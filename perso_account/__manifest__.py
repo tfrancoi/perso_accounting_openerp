@@ -41,6 +41,7 @@
         'wizard/import_axa.xml',
         'wizard/import_argenta.xml',
         'wizard/import_keytrade.xml',
+        'wizard/import_belfius.xml',
         'wizard/period_report.xml',
     ],
     'assets': {
