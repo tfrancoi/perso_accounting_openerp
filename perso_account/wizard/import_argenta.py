@@ -32,13 +32,14 @@ class ImportArgenta(models.TransientModel):
         5: 'amount',
         7: "transaction_date",
         4: 'com1',
-        10: 'com2',
+        9: 'com2',
+        10: 'com3',
     }
 
     def _import_rec(self, rec):
-        rec['name'] = '{com1}\n{com2}'.format(**rec)
+        rec['name'] = '{com1}\n{com2}\n{com3}'.format(**rec)
         rec['name'] = rec['name'].strip()
-        del rec['com1']; del rec['com2']
+        del rec['com1']; del rec['com2']; del rec['com3']
         return super(ImportArgenta, self)._import_rec(rec)
 
     def _get_data(self):
