@@ -36,7 +36,7 @@ class ImportBelfius(models.TransientModel):
     def _import_rec(self, rec):
         rec['bank_id'] = rec['bank_id'].replace(' ', '')
         rec['name'] = rec['name'].strip()
-        amount = float(rec['amount'].replace(self._thousand_sep, '').replace(self.decimal_separator, '.'))
+        amount = float(rec['amount'].replace(self._get_thousand_sep(), '').replace(self.decimal_separator, '.'))
         ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
         ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
         rec['reference'] = '%s-%s' % (self._to_iso_date(rec['value_date']).replace('-', '/'), ref_hash)

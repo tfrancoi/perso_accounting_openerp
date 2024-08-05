@@ -43,6 +43,6 @@ class ImportNewB(models.TransientModel):
         total =  float(rec['total'].replace(self._get_thousand_sep(), '').replace(self.decimal_separator, '.'))
         ref_str = '%s%s%s%s' % (amount, total, rec['transaction_date'], len(rec['name']))
         ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
-        rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)
+        rec['reference'] = '%s-%s' % (self._to_iso_date(rec['transaction_date']), ref_hash)
         del rec['com1']; del rec['com2']; del rec['total']
         return super(ImportNewB, self)._import_rec(rec)
