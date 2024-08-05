@@ -5,7 +5,7 @@
             <field name="name">perso.account.wizard_import_axa</field>
             <field name="model">perso.account.import_axa</field>
             <field name="arch" type="xml">
-                <form string="Import Fortis">
+                <form string="Import Crelan">
                     <div>
                         <h1><field name="name" readonly="1" /></h1>
                     </div>
@@ -21,7 +21,7 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="import_axa">
+        <record model="ir.actions.act_window" id="import_crelan">
                 <field name="name">Import Axa</field>
                 <field name="res_model">perso.account.import_axa</field>
                 <field name="view_mode">form</field>
@@ -31,8 +31,8 @@
 
        <menuitem id="perso_account_import_axa"
                   parent="perso_account_import_parent"
-                  name="Import Axa"
-                  action="import_axa" />
+                  name="Import Crelan"
+                  action="import_crelan" />
 
     </data>
 </openerp>

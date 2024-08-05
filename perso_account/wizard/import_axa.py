@@ -16,40 +16,31 @@ class ImportAxa(models.TransientModel):
     _description = 'Import File from Axa'
 
     name = fields.Char(default="Import CSV exported from Axa")
-    bank = fields.Char()
-    decimal_separator = fields.Selection(default=',')
+    decimal_separator = fields.Selection(default='.')
 
-    _date_format = "%Y-%m-%d"
+    _date_format = "%d/%m/%Y"
 
     _csv_delimiter = ";"
     _csv_quote = '"'
-    _header_length = 15
-    _encoding = 'iso-8859-1'
+    _header_length = 9
+    _encoding = 'utf-8'
 
     _cash_flow_mapping = {
-        0: "reference",
-        1: "transaction_date",
-        2: "value_date",
-        4: 'amount',
-        5: 'balance',
-        12: 'com1',
-        13: 'com2',
-        14: "name",
+        0: "value_date",
+        1: "amount",
+        2: "reference",
+        4: 'com2',
+        5: 'com3',
+        6: 'com4',
+        7: 'com5',
+        8: "bank_id",
     }
 
     def _import_rec(self, rec):
-        rec['bank_id'] = self.bank
-        rec['name'] += '\n%s\n%s' % (rec['com1'], rec['com2'])
+        rec['transaction_date'] = rec['value_date']
+        com = ' : '.join(filter(lambda l: l.strip(), [rec['com3'], rec['com4']]))
+        rec['name'] = '\n%s\n%s\n%s' % (rec['com5'], rec['com2'], com)
         rec['name'] = rec['name'].strip()
-        amount = float(rec['amount'].replace(self._get_thousand_sep(), '').replace(self.decimal_separator, '.'))
-        ref_str = '%s%s%s' % (amount, rec['transaction_date'], len(rec['name']))
-        ref_hash = hashlib.sha1(ref_str.encode('utf-8')).hexdigest()[:4]
-        rec['reference'] = '%s-%s' % (rec['reference'], ref_hash)
-        del rec['com1']; del rec['com2']; del rec['balance']
+        rec['reference'] = '%s/%s' % (rec['value_date'], rec['reference'].replace('.', '/'))
+        del rec['com2']; del rec['com3']; del rec['com4']; del rec['com5']
         return super(ImportAxa, self)._import_rec(rec)
-
-    def _read_header(self, data):
-        next(data) #remove first line
-        #second line contains the bank account number
-        self.bank = ''.join(next(data)[0].split(' ')[1:])
-        super(ImportAxa, self)._read_header(data)
