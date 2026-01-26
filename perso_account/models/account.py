@@ -15,9 +15,10 @@ class BankAccount(models.Model):
     description = fields.Char("Description")
     sequence    = fields.Char()
 
-    _sql_constraints = [
-        ('name_uniq', 'unique (name)', 'Each name must be unique.')
-    ]
+    _name_uniq = models.Constraint(
+        'unique(name)',
+        'Each name must be unique.',
+    )
 
     @api.depends('name', 'description')
     def name_get(self):
@@ -132,33 +133,47 @@ class Account(models.Model):
             Return the previous period
             Return the last 12 periods
         """
-        if not self._context.get("period_id"):
+        if not self.env.context.get("period_id"):
             return False, False, False
 
         period = self.env["perso.account.period"]
-        if self._context["period_id"] == "current" or self._context["period_id"] == "previous":
+        if self.env.context["period_id"] == "current" or self.env.context["period_id"] == "previous":
             today = fields.Date.today()
             period_ids = period.search([('date_start', '<=', today), ('date_end', '>=', today)], limit=1, order="date_start desc")
-            if self._context["period_id"] == "previous":
+            if self.env.context["period_id"] == "previous":
                 period_ids = period_ids.previous_period_id
         else:
-            period_ids = period.search([('name', '=', self._context["period_id"])])
+            period_ids = period.search([('name', '=', self.env.context["period_id"])])
 
         if not len(period_ids) == 1:
             return period_ids, False, False
         past_year = period.search([('type_id', '=', period_ids.type_id.id), ('date_end', '<', period_ids.date_start)], limit=12, order="date_start desc")
-        print(period_ids.name)
         return period_ids, period_ids.previous_period_id, past_year
 
     def _get_bank(self):
         bank_ids = False
-        if self._context.get("bank_id"):
-            bank_ids = self.env["perso.bank.account"].name_search(self._context["bank_id"])
+        if self.env.context.get("bank_id"):
+            bank_ids = self.env["perso.bank.account"].name_search(self.env.context["bank_id"])
             bank_ids = self.env["perso.bank.account"].browse([b[0] for b in bank_ids])
-        if self._context.get("bank_ids"):
-            bank_ids = self.env["perso.bank.account"].browse(self._context.get("bank_ids"))
+        if self.env.context.get("bank_ids"):
+            bank_ids = self.env["perso.bank.account"].browse(self.env.context.get("bank_ids"))
 
         return bank_ids
+
+    def _get_default_amout(self):
+        for account in self:
+            account.budget = 0
+            account.consolidated_budget = 0
+            account.last_period_budget = 0
+            account.last_period_budget_consolidated = 0
+            account.amount = 0
+            account.consolidated_amount = 0
+            account.previous_amount = 0
+            account.previous_consolidated_amount = 0
+            account.past_year_mean_amount = 0
+            account.past_year_mean_consolidated_amount = 0
+            account.remaining_budget = 0
+
 
     def _get_amount(self):
         cash_flow_obj = self.env['perso.account.cash_flow']
@@ -170,6 +185,8 @@ class Account(models.Model):
         for account in self:
             compute_ids.extend(self._get_all_child(account, []))
         compute_ids = list(set(compute_ids))
+        if not compute_ids:
+            return self._get_default_amout()
             
         parent_per_child = {}
         for account in self.browse(compute_ids):
@@ -334,9 +351,10 @@ class CashFlow(models.Model):
     period_id           = fields.Many2one("perso.account.period", compute="_get_period", search="_search_period", string="Period")
     distributed         = fields.Boolean("Has been distributed", readonly=True)
     
-    _sql_constraints = [
-        ('ref_uniq', 'unique (reference, bank_id)', 'Each reference must be unique per bank account.')
-    ]
+    _ref_uniq = models.Constraint(
+        'unique (reference, bank_id)',
+        'Each reference must be unique per bank account.',
+    )
     
     _order = "value_date desc"
     
@@ -357,10 +375,8 @@ class CashFlow(models.Model):
     def _search_period(self, operator, period_id):
         if isinstance(period_id, str):
             period = self.env["perso.account.period"].search([('name', operator, period_id)])
-        elif isinstance(period_id, list):
-            period = self.env["perso.account.period"].browse(period_id)
         else:
-            period = self.env["perso.account.period"].browse([period_id])
+            period = self.env["perso.account.period"].browse(period_id)
 
         domain = []
         for p in period:
@@ -393,13 +409,14 @@ class BudgetLine(models.Model):
         ON true WHERE budget <> 0;
     """
 
-    account_id = fields.Many2one('perso.account', required=True)
+    account_id = fields.Many2one('perso.account', required=True, ondelete='cascade')
     amount = fields.Float(required=True)
     period_id = fields.Many2one('perso.account.period', required=True)
 
-    _sql_constraints = [
-        ('account_period_unique', 'unique (account_id, period_id)', 'Only one budget line allow per account per period')
-    ]
+    _account_period_unique = models.Constraint(
+        'unique (account_id, period_id)',
+        'Only one budget line allow per account per period',
+    )
 
     def name_get(self):
         res = []

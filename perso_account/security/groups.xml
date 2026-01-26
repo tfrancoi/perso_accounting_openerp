@@ -1,11 +1,17 @@
 <odoo>
+    <record model="res.groups.privilege" id="res_groups_privilege_perso_account">
+        <field name="name">Personnal Accouting</field>
+        <field name="sequence">1</field>
+        <field name="category_id" ref="base.module_category_accounting"/>
+    </record>
+
     <record model="res.groups" id="manager_group">
         <field name="name">Manager</field>
-        <field name="category_id" ref="base.module_category_perso_account" />
+        <field name="privilege_id" ref="res_groups_privilege_perso_account" />
     </record>
 
     <record id="base.user_admin" model="res.users">
-        <field name="groups_id" eval="[(4, ref('perso_account.manager_group'))]"/>
+        <field name="group_ids" eval="[(4, ref('perso_account.manager_group'))]"/>
     </record>
 
     <record id="base.group_system" model="res.groups">

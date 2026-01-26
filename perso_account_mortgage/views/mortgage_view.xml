@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.ui.view" id="view_perso_bank_mortgage_tree">
-        <field name="name">perso.bank.mortgage.tree</field>
+    <record model="ir.ui.view" id="view_perso_bank_mortgage_list">
+        <field name="name">perso.bank.mortgage.list</field>
         <field name="model">perso.bank.mortgage</field>
         <field name="arch" type="xml">
-            <tree string="Mortgage">
+            <list string="Mortgage">
                 <field name="name" />
                 <field name="amount" sum="Total" />
                 <field name="rate" />
@@ -13,7 +13,7 @@
                 <field name="interest_paid" sum="Total" />
                 <field name="principal_paid" sum="Total" />
                 <field name="state" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -23,62 +23,62 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button string="Compute" type="object" name="compute" attrs="{'invisible': [('state', '!=', 'draft')]}" />
-                    <button string="Clean Data" type="object" name="clean" attrs="{'invisible': [('state', '!=', 'draft')]}" />
-                    <button string="Confirm" type="object" name="confirm" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                    <button string="Compute" type="object" name="compute" invisible="state != 'draft'" />
+                    <button string="Clean Data" type="object" name="clean" invisible="state != 'draft'" />
+                    <button string="Confirm" type="object" name="confirm" invisible="state != 'draft'" />
                     <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
                     <group>
                         <field name="name" />
                         <group>
-                            <field name="amount" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <field name="rate"  attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <field name="duration" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            <field name="amount" readonly="state != 'draft'" />
+                            <field name="rate"  readonly="state != 'draft'" />
+                            <field name="duration" readonly="state != 'draft'" />
                             <separator string="Current Status" colspan="2" />
                             <field name="interest_paid" />
                             <field name="principal_paid" />
                         </group>
                         <group>
-                            <field name="total_cost" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <field name="monthly_rate"  attrs="{'readonly': [('state', '!=', 'draft')]}"/>
-                            <field name="monthly_payement" attrs="{'readonly': [('state', '!=', 'draft')]}" />
-                            <separator string="Payement" colspan="2" attrs="{'invisible': [('state', '!=', 'valid')]}" />
+                            <field name="total_cost" readonly="state != 'draft'"/>
+                            <field name="monthly_rate" readonly="state != 'draft'"/>
+                            <field name="monthly_payement" readonly="state != 'draft'" />
+                            <separator string="Payement" colspan="2" invisible="state != 'valid'" />
                             <field name="cash_flow_id" string="Last Payment Cash Flow"
-                                        domain="[('id', 'not in', used_cash_flow_ids)]"
-                                        attrs="{'invisible': [('state', '!=', 'valid')]}" />
-                            <button name="payment" type="object" string="Payment"  attrs="{'invisible': [('state', '!=', 'valid')]}"/>
+                                        domain="[('id', 'not in', used_cash_flow_ids), ('amount', '=', -monthly_payement)]"
+                                        invisible="state != 'valid'" />
+                            <button name="payment" type="object" string="Payment" invisible="state != 'valid'"/>
                         </group>
                     </group>
                     <notebook>
-                        <page name="draft" string="Mortgage Line" attrs="{'invisible': [('state', '!=', 'draft')]}">
+                        <page name="draft" string="Mortgage Line" invisible="state != 'draft'">
                             <field name="draft_line_ids" options="{'no_create':True}">
-                                <tree editable="Top" >
+                                <list editable="top" >
                                     <field name="period_nb" />
                                     <field name="principal_paid" />
                                     <field name="interest_paid" />
                                     <field name="remaining_principal" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
-                        <page name="confirmed" string="To Pay Mortgage Line" attrs="{'invisible': [('state', '!=', 'valid')]}">
+                        <page name="confirmed" string="To Pay Mortgage Line" invisible="state != 'valid'">
                             <field name="confirmed_line_ids" readonly="1">
-                                <tree>
+                                <list>
                                     <field name="period_nb" />
                                     <field name="principal_paid" />
                                     <field name="interest_paid" />
                                     <field name="remaining_principal" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
-                        <page name="paid" string="Paid Mortgage Line" attrs="{'invisible': [('state', 'not in', ('valid', 'done'))]}">
+                        <page name="paid" string="Paid Mortgage Line" invisible="state not in ('valid', 'done')">
                             <field name="paid_line_ids" readonly="1">
-                                <tree>
+                                <list>
                                     <field name="period_nb" />
                                     <field name="principal_paid" />
                                     <field name="interest_paid" />
                                     <field name="remaining_principal" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page name="settings" string="Advanced settings">
@@ -86,7 +86,7 @@
                                 <field name="target_principal_account" />
                                 <field name="target_interest_account"  />
                                 <field name="used_cash_flow_ids" invisible="1">
-                                    <tree></tree>
+                                    <list></list>
                                 </field>
                             </group>
                         </page>
@@ -96,16 +96,11 @@
         </field>
     </record>
 
-
-
     <record model="ir.actions.act_window" id="mortgage_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.bank.mortgage</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
-
-
-
 
     <menuitem id="mortgage_menu" parent="perso_account.perso_account_root"
         name="Mortgage" action="mortgage_act_form" />

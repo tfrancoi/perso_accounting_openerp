@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record model="ir.ui.view" id="view_perso_account_asset_tree">
-        <field name="name">perso.account.asset.tree</field>
+    <record model="ir.ui.view" id="view_perso_account_asset_list">
+        <field name="name">perso.account.asset.list</field>
         <field name="model">perso.account.asset</field>
         <field name="arch" type="xml">
-            <tree string="Asset">
+            <list string="Asset">
                 <field name="name" />
                 <field name="value" sum="total" />
                 <field name="start_date" />
                 <field name="end_date" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -31,11 +31,11 @@
                         </group>
                     </group>
                     <field name="document_ids">
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="name" />
                             <field name="fname" invisible="1" />
                             <field name="data" filename="fname" widget="binary"/>
-                        </tree>
+                        </list>
                         <form>
                             <group>
                                 <field name="name" />
@@ -54,7 +54,7 @@
     <record model="ir.actions.act_window" id="asset_act_form">
         <field name="name">Asset</field>
         <field name="res_model">perso.account.asset</field>
-        <field name="view_mode">tree,form,pivot</field>
+        <field name="view_mode">list,form,pivot</field>
     </record>
 
 

@@ -45,19 +45,19 @@
         'wizard/import_newb.xml',
         'wizard/period_report.xml',
     ],
-    'assets': {
-        'web.assets_backend': [
-            'perso_account/static/src/**/*',
-        ],
-        'web.assets_qweb': [
-            'perso_account/static/src/xml/*.xml',
-        ],
-    },
+    # 'assets': {
+    #     'web.assets_backend': [
+    #         'perso_account/static/src/**/*',
+    #     ],
+    #     'web.assets_qweb': [
+    #         'perso_account/static/src/xml/*.xml',
+    #     ],
+    # },
     'installable': True,
     'application': True,
-    'qweb': [
-        'static/src/xml/template.xml',
-    ],
+    # 'qweb': [
+    #     'static/src/xml/template.xml',
+    # ],
 }
 
 #TODO

@@ -4,14 +4,14 @@
         <field name="name">perso.account.tree</field>
         <field name="model">perso.account</field>
         <field name="arch" type="xml">
-            <tree string="Account"  >
+            <list string="Account"  >
                 <field name="number" />
                 <field name="name" />
                 <field name="type" />
                 <field name="amount" sum="Total" />
                 <field name="consolidated_amount" sum="Total" />
                 <field name="parent_id" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -36,11 +36,11 @@
         <field name="arch" type="xml">
             <form string="Account">
                 <header>
-                    <button type="object" name="toggle_active" string="Archive" attrs="{'invisible': [('active', '=', False)]}"/>
-                    <button type="object" name="toggle_active" string="Restore" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <button type="object" name="toggle_active" string="Archive" invisible="not active"/>
+                    <button type="object" name="toggle_active" string="Restore" invisible="active"/>
                 </header>
                 <sheet>
-                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" attrs="{'invisible': [('active', '=', True)]}"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="bg-danger" invisible="active"/>
 
                     <group>
                         <field name="active" invisible="1" />
@@ -59,21 +59,21 @@
                         </page>
                         <page string="Cash Flows">
                             <field name="cash_flow_ids">
-                                <tree>
+                                <list>
                                     <field name="name" />
                                     <field name="bank_id" />
                                     <field name="amount" sum="Total" />
                                     <field name="value_date" />
                                     <field name="transaction_date" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Budget">
                             <field name="budget_line_ids">
-                                <tree>
+                                <list>
                                     <field name="period_id" />
                                     <field name="amount" />
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Description">
@@ -90,7 +90,7 @@
     <record model="ir.actions.act_window" id="account_act_form">
         <field name="name">Account</field>
         <field name="res_model">perso.account</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_perso_account_tree" />
     </record>
 
