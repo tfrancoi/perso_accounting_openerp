@@ -41,6 +41,6 @@ class ImportAxa(models.TransientModel):
         com = ' : '.join(filter(lambda l: l.strip(), [rec['com3'], rec['com4']]))
         rec['name'] = '\n%s\n%s\n%s' % (rec['com5'], rec['com2'], com)
         rec['name'] = rec['name'].strip()
-        rec['reference'] = '%s/%s' % (rec['value_date'], rec['reference'].replace('.', '/'))
+        rec['reference'] = '%s/%s/%s' % (rec['value_date'], rec['amount'].replace('.', ''), rec['reference'].replace('.', ''))
         del rec['com2']; del rec['com3']; del rec['com4']; del rec['com5']
         return super(ImportAxa, self)._import_rec(rec)
