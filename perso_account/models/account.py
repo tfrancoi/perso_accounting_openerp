@@ -21,11 +21,9 @@ class BankAccount(models.Model):
     )
 
     @api.depends('name', 'description')
-    def name_get(self):
-        result = []
+    def _compute_display_name(self):
         for rec in self:
-            result.append((rec.id, '%s - %s' % (rec.description, rec.name)))
-        return result
+            rec.display_name = '%s - %s' % (rec.description, rec.name)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
