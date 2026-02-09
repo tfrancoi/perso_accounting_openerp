@@ -26,9 +26,8 @@ class BankAccount(models.Model):
             rec.display_name = '%s - %s' % (rec.description, rec.name)
 
     @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        args = args or []
-        domain = []
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
+        domain = domain or []
         if name:
             name_list = name.split('-')
             name = name_list[-1].strip()
@@ -37,8 +36,9 @@ class BankAccount(models.Model):
                 domain = ['|', ('name', operator, name), ('description', operator, name)]
             else:
                 domain = [('name', operator, name), ('description', operator, description)]
-        banks = self.search(domain + args, limit=limit)
-        return banks.name_get()
+            return [(account.id, account.display_name) for account in self.search(domain, limit=limit)]
+        else:
+            return super().name_search(name, domain=domain, operator=operator, limit=limit, order=order)
 
 class AccountPeriodType(models.Model):
 
