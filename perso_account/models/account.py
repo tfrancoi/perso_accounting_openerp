@@ -38,7 +38,7 @@ class BankAccount(models.Model):
                 domain = [('name', operator, name), ('description', operator, description)]
             return [(account.id, account.display_name) for account in self.search(domain, limit=limit)]
         else:
-            return super().name_search(name, domain=domain, operator=operator, limit=limit, order=order)
+            return super().name_search(name, domain=domain, operator=operator, limit=limit)
 
 class AccountPeriodType(models.Model):
 
