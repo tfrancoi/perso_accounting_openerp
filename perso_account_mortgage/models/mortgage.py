@@ -154,3 +154,28 @@ class MortgageLine(models.Model):
     counter_cash_flow_id = fields.Many2one('perso.account.cash_flow')
     principal_cash_flow_id = fields.Many2one('perso.account.cash_flow')
     interest_cash_flow_id = fields.Many2one('perso.account.cash_flow')
+
+
+class PersoAccountCashFlow(models.Model):
+
+    _inherit = "perso.account.cash_flow"
+
+    mortgage_id = fields.Many2one("perso.bank.mortgage", compute="_compute_mortgage_id", store=True)
+
+    @api.depends()
+    def _compute_mortgage_id(self):
+        mortgage_lines = self.env['perso.bank.mortgage.line'].search([
+            '|', '|', '|',
+            ('cash_flow_id', 'in', self.ids),
+            ('counter_cash_flow_id', 'in', self.ids),
+            ('principal_cash_flow_id', 'in', self.ids),
+            ('interest_cash_flow_id', 'in', self.ids),
+        ])
+        mortgage_per_line = {
+            **{ml.cash_flow_id : ml.mortgage_id for ml in mortgage_lines},
+            **{ml.counter_cash_flow_id : ml.mortgage_id for ml in mortgage_lines},
+            **{ml.principal_cash_flow_id : ml.mortgage_id for ml in mortgage_lines},
+            **{ml.interest_cash_flow_id : ml.mortgage_id for ml in mortgage_lines},
+        }
+        for cash_flow in self:
+            cash_flow.mortgage_id = mortgage_per_line.get(cash_flow, False)
